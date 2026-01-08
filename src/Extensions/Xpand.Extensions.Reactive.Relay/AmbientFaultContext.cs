@@ -59,7 +59,7 @@ namespace Xpand.Extensions.Reactive.Relay{
         public int LineNumber => lineNumber;
         
         public override string ToString() {
-            var validContexts = Context?.Where(c => c is not null && !string.IsNullOrWhiteSpace(c.ToString()) && c.ToString() != "()").ToArray();
+            var validContexts = Context?.Select(c => c?.ToString()).Where(s => !string.IsNullOrWhiteSpace(s) && s != "()").ToArray();
             var contextString = validContexts.JoinCommaSpace();
             var contextPrefix = !string.IsNullOrEmpty(contextString) ? $"{contextString.EncloseParenthesis()} " : "";
             var cleanedMemberName = memberName.ParseMemberName();

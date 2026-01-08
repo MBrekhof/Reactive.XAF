@@ -118,8 +118,9 @@ namespace Xpand.Extensions.Reactive.Relay {
             => mergedTree.ContextData.ExceptType(typeof(IMetadataToken))
                 .Where(o => {
                     if (o is OperationNode) return false;
-                    if (o is not string s) return true;
-                    return !(mergedTree.Tags?.Contains(s) ?? false) && s.CompoundName() != title && s != title;
+                    var sVal = o?.ToString();
+                    return !string.IsNullOrWhiteSpace(sVal) && sVal != "()" && (o is not string s ||
+                        !(mergedTree.Tags?.Contains(s) ?? false) && s.CompoundName() != title && s != title);
                 })
                 .ToArray();
 
@@ -193,15 +194,6 @@ namespace Xpand.Extensions.Reactive.Relay {
             return filteredItems;
             
         }
-
-        private static string RenderSimpleStack(this IReadOnlyList<LogicalStackFrame> logicalStack) {
-            var sb = new StringBuilder();
-            sb.AppendLine("--- Invocation Stack ---");
-            foreach (var frame in logicalStack) {
-                sb.Append("  ").AppendLine(frame.ToString());
-            }
-            return sb.ToString().TrimEnd();
-        }
         
         private static void AppendBlacklistFooter(this StringBuilder sb, List<object> filteredItems, Dictionary<string, string> blacklistedPatterns) {
             var appliedPatterns = blacklistedPatterns.Values.Distinct().ToList();
@@ -237,7 +229,7 @@ namespace Xpand.Extensions.Reactive.Relay {
             var representative = groupToMerge.First();
             var allChildren = groupToMerge.SelectMany(n => n.Children).ToArray();
             var mergedChildren = !allChildren.Any() ? new List<OperationNode>()
-                : allChildren.GroupBy(c => c.Name).Select(childGroup => Union(childGroup.ToList())).ToList();
+                : allChildren.GroupBy(c => c.Name).Select(childGroup => childGroup.ToList().Union()).ToList();
             var logicalStack = groupToMerge.SelectMany(n => n.LogicalStack ?? Enumerable.Empty<LogicalStackFrame>()).Distinct().ToList();
             var rootCause = groupToMerge.FirstOrDefault(n => n.RootCause != null)?.RootCause;
             return new OperationNode(representative.Name, representative.ContextData, mergedChildren, rootCause, logicalStack);
@@ -323,6 +315,9 @@ namespace Xpand.Extensions.Reactive.Relay {
             if (c is IMetadataToken) {
                 return false;
             }
+            var sVal = c.ToString();
+            if (string.IsNullOrWhiteSpace(sVal) || sVal == "()") return false;
+            
             if (c is not string contextString) {
                 return true;
             }
@@ -410,7 +405,10 @@ namespace Xpand.Extensions.Reactive.Relay {
         
         static OperationNode BuildFromGenericException(this Exception ex, IReadOnlyList<LogicalStackFrame> parentStack,
             Dictionary<AmbientFaultContext, FaultHubException> contextLookup) {
-            if (ex is not AggregateException aggEx) return ex is FaultHubException fhEx ? fhEx.Context.BuildFromContext(parentStack, contextLookup) : null;
+            if (ex is not AggregateException aggEx) {
+                return ex is FaultHubException fhEx ? fhEx.Context.BuildFromContext(parentStack, contextLookup)
+                    : new OperationNode(ex.GetType().Name, [], [], ex, parentStack);
+            }
             var children = aggEx.InnerExceptions.Select(e => e.BuildFromGenericException(parentStack, contextLookup)).Where(n => n != null).ToList();
             return children.Count == 1 ? children.Single() : new OperationNode("Multiple Operations", [], children);
         }
@@ -443,7 +441,10 @@ namespace Xpand.Extensions.Reactive.Relay {
                 return null;
             }
 
-            var nodeFromInner = owner.InnerException.BuildFromGenericException(parentStack, contextLookup);
+            var localStack = (context.LogicalStackTrace ?? Enumerable.Empty<LogicalStackFrame>()).ToArray();
+            var combinedStack = localStack.Concat(parentStack.Except(localStack)).ToList();
+            
+            var nodeFromInner = owner.InnerException.BuildFromGenericException(combinedStack, contextLookup);
             if (nodeFromInner != null) {
                 return nodeFromInner;
             }
@@ -467,12 +468,15 @@ namespace Xpand.Extensions.Reactive.Relay {
                 LogFast($"Child node for '{innerFhEx.Context.BoundaryName}' is already being created via InnerContext traversal. Skipping redundant InnerException parse.");
                 return innerFhEx.FindRootCauses().FirstOrDefault();
             }
-            var errorNode = contextOwner.InnerException.BuildFromGenericException(fullStack, contextLookup);
-            if (errorNode != null) {
-                if (errorNode.Name == "Multiple Operations") {
-                    children.AddRange(errorNode.Children);
-                } else {
-                    children.Add(errorNode);
+            if (contextOwner.InnerException is AggregateException or FaultHubException) {
+                var errorNode = contextOwner.InnerException.BuildFromGenericException(fullStack, contextLookup);
+                if (errorNode != null) {
+                    if (errorNode.Name == "Multiple Operations") {
+                        children.AddRange(errorNode.Children);
+                    }
+                    else {
+                        children.Add(errorNode);
+                    }
                 }
             }
             if (contextOwner.InnerException is not (null or FaultHubException or AggregateException)) {
