@@ -175,8 +175,11 @@ namespace Xpand.Extensions.Reactive.Transform.System.Net {
                 .SelectMany(t => t.objects),message => message.Observe());
 
         private static IObservable<(HttpResponseMessage[] objects, JsonDocument document)> WhenJsonDocument(this HttpResponseMessage message) 
-            => Observable.FromAsync(() => message.Content.ReadAsStreamAsync()).WhenJsonDocument(document =>
-                    new HttpResponseException(document.RootElement.ToString(), message).Throw<HttpResponseMessage>());
+            => message.IsSuccessStatusCode ? Observable.FromAsync(() => message.Content.ReadAsStreamAsync()).WhenJsonDocument(document =>
+                    new HttpResponseException(document.RootElement.ToString(), message).Throw<HttpResponseMessage>())
+                : message.Content.ReadAsByteArrayAsync().ToObservable()
+                    .SelectMany(bytes => new HttpResponseException(bytes.GetString(), message)
+                        .Throw<(HttpResponseMessage[] objects, JsonDocument document)>());
 
         public static IObservable<(T[] objects, JsonDocument document)> WhenResponseDocument<T>(this HttpClient client,
             HttpRequestMessage httpRequestMessage, Func<(JsonDocument document, HttpResponseMessage message), IObservable<T>> selector) 
@@ -184,18 +187,15 @@ namespace Xpand.Extensions.Reactive.Transform.System.Net {
                 .SelectMany(message => message.Content.ReadAsStreamAsync().ToObservable()
                     .SelectMany(stream => stream.WhenJsonDocument(document => selector((document, message)))));
 
-        public static IObservable<(JsonDocument document, HttpResponseMessage message)> WhenResponseDocument(
-            this HttpClient client, HttpRequestMessage httpRequestMessage)
+        public static IObservable<(JsonDocument document, HttpResponseMessage message)> WhenResponseDocument(this HttpClient client, HttpRequestMessage httpRequestMessage)
             => client.Request<HttpResponseMessage>(httpRequestMessage)
                 .SelectMany(message => message.Content.ReadAsStreamAsync().ToObservable()
                     .SelectMany(stream => stream.WhenJsonDocument(false)
                         .Select(document => (document, message))));
         
         
-        public static IObservable<(T[] objects, JsonDocument document)> WhenResponseDocument<T>(this HttpClient client,
-            string url, Func<JsonDocument, IObservable<T>> selector) 
-            => client.GetStreamAsync(url).ToObservable()
-                .SelectMany(stream => stream.WhenJsonDocument(selector));
+        public static IObservable<(T[] objects, JsonDocument document)> WhenResponseDocument<T>(this HttpClient client, string url, Func<JsonDocument, IObservable<T>> selector) 
+            => client.GetStreamAsync(url).ToObservable().SelectMany(stream => stream.WhenJsonDocument(selector));
         public static IObservable<(JsonDocument document, HttpResponseMessage message)> WhenResponseDocument(this HttpClient client, string url,HttpMethod httpMethod=null) 
             => client.WhenResponseDocument(new HttpRequestMessage(httpMethod??HttpMethod.Get, url));
         
