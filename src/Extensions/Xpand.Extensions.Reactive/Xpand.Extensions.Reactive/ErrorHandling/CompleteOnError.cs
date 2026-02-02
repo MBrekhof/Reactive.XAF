@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Reactive.Linq;
+using Xpand.Extensions.Reactive.Combine;
+using Xpand.Extensions.Reactive.Transform;
+using Xpand.Extensions.Reactive.Utility;
 
 namespace Xpand.Extensions.Reactive.ErrorHandling {
     public static partial class ErrorHandling {
@@ -18,6 +21,14 @@ namespace Xpand.Extensions.Reactive.ErrorHandling {
             => source.CompleteOnError(onError,exceptionType.IsInstanceOfType);
         public static IObservable<T> CompleteOnTimeout<T>(this IObservable<T> source) 
             => source.CompleteOnError(typeof(TimeoutException));
+
+        public static IObservable<T> RescueError<T>(this IObservable<T> source,T returnOnError,Func<Exception,bool> match=null,Action<Exception> onError=null)
+            => source.RescueError(returnOnError.Observe(), match, onError);
+        
+        public static IObservable<T> RescueError<T>(this IObservable<T> source,IObservable<T> returnOnErrorSignal,Func<Exception,bool> match=null,Action<Exception> onError=null) 
+            => source.CompleteOnError(match: match)
+                .DoOnError(ex => onError?.Invoke(ex))
+                .SwitchIfEmpty(returnOnErrorSignal);
 		
     }
 }
