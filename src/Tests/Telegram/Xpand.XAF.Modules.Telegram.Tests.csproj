@@ -70,7 +70,7 @@
         <PackageReference Include="NUnit3TestAdapter" />
         <PackageReference Include="Shouldly" />
         <PackageReference Include="System.Interactive.Async" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
         <PackageReference Include="DevExpress.ExpressApp.Win" />
         <PackageReference Include="Telegram.Bot" />
         <PackageReference Include="System.Management" />

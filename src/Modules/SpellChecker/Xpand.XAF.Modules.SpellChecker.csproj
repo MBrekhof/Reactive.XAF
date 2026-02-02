@@ -73,6 +73,6 @@
         <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
     </ItemGroup>
 </Project>

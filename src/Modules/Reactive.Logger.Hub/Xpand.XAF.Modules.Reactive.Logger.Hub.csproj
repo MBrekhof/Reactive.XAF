@@ -69,7 +69,7 @@
         
         
         <PackageReference Include="Xpand.Collections" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
         <PackageReference Include="YamlDotNet" />
         
         <PackageReference Include="Microsoft.Extensions.Options" />

@@ -85,7 +85,7 @@
         <PackageReference Include="DevExpress.ExpressApp.Validation" />
         <PackageReference Include="Fasterflect.Xpand" />
         <PackageReference Include="System.Reactive" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
         <PackageReference Include="Telegram.Bot" />
         <PackageReference Include="Humanizer" />
         <PackageReference Include="Microsoft.Extensions.Options" />

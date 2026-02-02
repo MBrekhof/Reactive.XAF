@@ -46,7 +46,7 @@
         <PackageReference Include="System.Security.Cryptography.ProtectedData" />
         <PackageReference Include="System.Interactive" />
         <PackageReference Include="Xpand.Collections" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
         <PackageReference Include="System.CodeDom" />
         <PackageReference Include="Microsoft.CodeAnalysis" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />

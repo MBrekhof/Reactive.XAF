@@ -57,7 +57,7 @@
         <PackageReference Include="NUnit3TestAdapter" />
         <PackageReference Include="Shouldly" />
         <PackageReference Include="System.Interactive.Async" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
         <PackageReference Include="DevExpress.ExpressApp.Win" />
     </ItemGroup>
 </Project>

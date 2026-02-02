@@ -26,7 +26,7 @@
     <PackageReference Include="System.CodeDom" />
     <PackageReference Include="System.ValueTuple" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-    <PackageReference Include="Lib.Harmony" />
+    <PackageReference Include="Lib.Harmony.Thin" />
     <PackageReference Include="Xpand.Collections" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" />
@@ -34,11 +34,6 @@
     <PackageReference Include="Humanizer.Core" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
     <PackageReference Include="Mono.Cecil" />
-    <PackageReference Include="MonoMod.Core" />
-    <PackageReference Include="MonoMod.Backports" />
-    <PackageReference Include="MonoMod.Utils" />
-    <PackageReference Include="MonoMod.ILHelpers" />
-    <PackageReference Include="MonoMod.RuntimeDetour" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\ExpressApp.ico" />

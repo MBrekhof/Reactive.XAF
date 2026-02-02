@@ -132,7 +132,7 @@
         <PackageReference Include="Microsoft.Extensions.Hosting" />
         <PackageReference Include="System.Interactive" />
         <PackageReference Include="System.Reactive" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
         <PackageReference Include="System.Security.Cryptography.ProtectedData" />
         <PackageReference Include="Microsoft.CodeAnalysis" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />

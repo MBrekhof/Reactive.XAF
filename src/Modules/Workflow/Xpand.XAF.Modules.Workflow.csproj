@@ -109,7 +109,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Options" />
         <PackageReference Include="System.Reactive" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
         <PackageReference Include="Humanizer.Core" />
     </ItemGroup>
 </Project>

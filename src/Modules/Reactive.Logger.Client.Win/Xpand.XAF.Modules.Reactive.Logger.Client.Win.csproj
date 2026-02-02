@@ -93,6 +93,6 @@
         <PackageReference Include="Microsoft.CodeAnalysis" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
         <PackageReference Include="System.Reactive" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
     </ItemGroup>
 </Project>

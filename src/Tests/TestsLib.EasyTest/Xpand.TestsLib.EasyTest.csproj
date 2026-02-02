@@ -93,7 +93,7 @@
         <PackageReference Include="System.Security.Cryptography.ProtectedData" />
         <PackageReference Include="System.Interactive.Async" />
         <PackageReference Include="MessagePack" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
         <PackageReference Include="DevExpress.EasyTest" />
         <PackageReference Include="Enums.NET" />
     </ItemGroup>

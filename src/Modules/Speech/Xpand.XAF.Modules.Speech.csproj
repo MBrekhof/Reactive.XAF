@@ -90,7 +90,7 @@
         <PackageReference Include="NAudio" />
         <PackageReference Include="Fasterflect.Xpand" />
         <PackageReference Include="System.Reactive" />
-        <PackageReference Include="Lib.Harmony" />
+        <PackageReference Include="Lib.Harmony.Thin" />
         <PackageReference Include="Microsoft.Extensions.Options" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         
