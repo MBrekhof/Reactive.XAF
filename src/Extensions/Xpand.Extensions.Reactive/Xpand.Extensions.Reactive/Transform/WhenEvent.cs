@@ -29,7 +29,9 @@ namespace Xpand.Extensions.Reactive.Transform {
         
         public static IObservable<T> ProcessEvent<T>(this T source, string eventName, IScheduler scheduler = null) 
             => source.FromEventPattern<EventArgs>(eventName, scheduler).Select(pattern => pattern.EventArgs).To(source);
-
+        private static class HandlerFactoryCache<TArgs> {
+            public static readonly ConcurrentDictionary<Type, Func<object, IObserver<EventPattern<TArgs>>, Delegate>> Factories = new();
+        }
         public static IObservable<EventPattern<TArgs>> FromEventPattern<TArgs>(this object source, string eventName, IScheduler scheduler) {
             var eventInfo = source.EventInfo(eventName);
             if (eventInfo.info == null) {
@@ -39,35 +41,9 @@ namespace Xpand.Extensions.Reactive.Transform {
             var observable = Observable.Create<EventPattern<TArgs>>(observer => {
                 var eventHandlerType = eventInfo.info.EventHandlerType;
 
-                var delegateParams = eventHandlerType!.GetMethod("Invoke")!.GetParameters();
-                var handlerParams = delegateParams.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
+                var factory = HandlerFactoryCache<TArgs>.Factories.GetOrAdd(eventHandlerType, type => CreateHandlerFactory<TArgs>(type));
 
-                Expression senderExpression = Expression.Constant(source);
-                Expression argsExpression = null;
-
-                if (delegateParams.Length == 1) {
-                    argsExpression = handlerParams[0];
-                }
-                else if (delegateParams.Length == 2 && delegateParams[0].ParameterType == typeof(object)) {
-                    senderExpression = handlerParams[0];
-                    argsExpression = handlerParams[1];
-                }
-                else if (delegateParams.Length == 0 && typeof(TArgs) == typeof(Unit)) {
-                    argsExpression = Expression.Constant(Unit.Default);
-                }
-
-                if (argsExpression == null) {
-                    observer.OnError(new NotSupportedException($"Unsupported event signature for '{eventName}'."));
-                    return Disposable.Empty;
-                }
-
-                var onNextMethod = typeof(IObserver<EventPattern<TArgs>>).GetMethod("OnNext");
-                var eventPatternCtor = typeof(EventPattern<TArgs>).GetConstructor([typeof(object), typeof(TArgs)]);
-                var newEventPattern = Expression.New(eventPatternCtor!, senderExpression,
-                    Expression.Convert(argsExpression, typeof(TArgs)));
-                var onNextCall = Expression.Call(Expression.Constant(observer), onNextMethod!, newEventPattern);
-
-                var handler = Expression.Lambda(eventHandlerType, onNextCall, handlerParams).Compile();
+                var handler = factory(source, observer);
 
                 eventInfo.add.Invoke(source, [handler]);
                 return Disposable.Create(eventInfo.remove,info => info.Invoke(source,[handler]));
@@ -80,6 +56,46 @@ namespace Xpand.Extensions.Reactive.Transform {
             return observable.TakeUntilDisposed(source as IComponent);
         }
 
+        private static Func<object, IObserver<EventPattern<TArgs>>, Delegate> CreateHandlerFactory<TArgs>(Type eventHandlerType) {
+            var delegateParams = eventHandlerType.GetMethod("Invoke")!.GetParameters();
+            var handlerParams = delegateParams.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
+
+            var sourceParam = Expression.Parameter(typeof(object), "source");
+            var observerParam = Expression.Parameter(typeof(IObserver<EventPattern<TArgs>>), "observer");
+
+            Expression senderExpression = sourceParam;
+            Expression argsExpression = null;
+
+            if (delegateParams.Length == 1) {
+                argsExpression = handlerParams[0];
+            }
+            else if (delegateParams.Length == 2 && delegateParams[0].ParameterType == typeof(object)) {
+                senderExpression = handlerParams[0];
+                argsExpression = handlerParams[1];
+            }
+            else if (delegateParams.Length == 0 && typeof(TArgs) == typeof(Unit)) {
+                argsExpression = Expression.Constant(Unit.Default);
+            }
+
+            if (argsExpression == null) {
+                throw new NotSupportedException($"Unsupported event signature for '{eventHandlerType.Name}'.");
+            }
+
+            var eventPatternCtor = typeof(EventPattern<TArgs>).GetConstructor([typeof(object), typeof(TArgs)]);
+            var newEventPattern = Expression.New(eventPatternCtor!, senderExpression,
+                Expression.Convert(argsExpression, typeof(TArgs)));
+            
+            var onNextMethod = typeof(IObserver<EventPattern<TArgs>>).GetMethod("OnNext");
+            var onNextCall = Expression.Call(observerParam, onNextMethod!, newEventPattern);
+
+            var handlerLambda = Expression.Lambda(eventHandlerType, onNextCall, handlerParams);
+
+            var factoryLambda = Expression.Lambda<Func<object, IObserver<EventPattern<TArgs>>, Delegate>>(
+                handlerLambda, sourceParam, observerParam);
+
+            return factoryLambda.Compile();
+        }
+        
         private static (EventInfo info,MethodInfo add,MethodInfo remove) EventInfo(this object source,string eventName) 
             => Events.GetOrAdd((source as Type ?? source.GetType(), eventName), t => {
                 var eventInfo = (EventInfo)t.type.Members(MemberTypes.Event,Flags.AllMembers).OrderByDescending(info => info.IsPublic())
