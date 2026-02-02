@@ -116,7 +116,7 @@ namespace Xpand.XAF.Modules.Reactive.Services{
                 gridView.CallMethod("Focus");
                 var focus = gridView.GetPropertyValue("FocusedRowHandle");
                 return objects.ToNowObservable().SelectManySequential(arg => gridView.WhenSelectRow(arg)
-                    .BufferUntilCompleted().SelectMany(handles => {
+                    .BufferUntilCompleted(true).SelectMany(handles => {
                         if (handles.First() == (int)focus) return handles;
                         gridView.CallMethod("UnselectRow", focus);
                         return handles;

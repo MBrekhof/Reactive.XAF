@@ -70,7 +70,7 @@ namespace Xpand.TestsLib.Common {
         }
 
         public static IDisposable PatchWebRequest(this  Harmony harmony,Func<Uri,bool> matchUri,Mock<HttpWebResponse> mockResponse){
-            var methodInfo = typeof(WebRequest).GetMethod(nameof(WebRequest.CreateHttp),new[]{typeof(Uri)});
+            var methodInfo = typeof(WebRequest).GetMethod(nameof(WebRequest.CreateHttp), [typeof(Uri)]);
             var harmonyMethod = new HarmonyMethod(typeof(MockExtensions), nameof(WebRequestCreate));
             harmony.Patch(methodInfo, harmonyMethod);
             _matchUri = matchUri;
@@ -148,6 +148,7 @@ namespace Xpand.TestsLib.Common {
             Action<HttpClient> configure = null, IScheduler scheduler = null) 
             => application.WhenMockedResponse<HttpClient>(configure, scheduler);
 
+        [SuppressMessage("ReSharper", "UnusedParameter.Global")]
         public static IObservable<HttpResponseMessage> WhenMockedResponse<TClient,THandler>(this XafApplication application,
             Action<TClient> configure = null, IScheduler scheduler = null) where TClient : HttpClient, new() where THandler:HttpMessageHandler {
             var mock = new Mock<THandler>();
@@ -162,6 +163,7 @@ namespace Xpand.TestsLib.Common {
 
         }
 
+        [SuppressMessage("ReSharper", "UnusedParameter.Global")]
         public static IObservable<HttpResponseMessage> WhenMockedResponse<TClient>(this XafApplication application,
             Action<TClient> configure = null, IScheduler scheduler = null) where TClient : HttpClient, new() 
             => application.WhenMockedResponse<TClient, HttpMessageHandler>(configure);

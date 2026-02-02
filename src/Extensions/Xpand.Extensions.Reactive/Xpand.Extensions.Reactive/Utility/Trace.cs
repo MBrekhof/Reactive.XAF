@@ -39,7 +39,15 @@ namespace Xpand.Extensions.Reactive.Utility{
             => source.Do(_ => FastLogger.LogFast($"{message}"));
         
         public static IObservable<T> LogFast<T>(this IObservable<T> source,Func<T,string> formatter=null,[CallerMemberName]string caller="") 
-            => source.Do(obj => FastLogger.LogFast($"{caller} - {formatter?.Invoke(obj)}")).LogFastError(caller);
+            => source.Do(obj => {
+                if (!Enabled) return;
+                if (formatter != null) {
+                    FastLogger.LogFast($"{caller} - {formatter(obj)}");
+                }
+                else {
+                    FastLogger.LogFast($"{caller} - {obj}");
+                }
+            }).LogFastError(caller);
         
         public static IObservable<T> LogFastError<T>(this IObservable<T> source,[CallerMemberName]string caller="") 
             => source.DoOnError(e => FastLogger.LogFast($"{caller} - {e}"));

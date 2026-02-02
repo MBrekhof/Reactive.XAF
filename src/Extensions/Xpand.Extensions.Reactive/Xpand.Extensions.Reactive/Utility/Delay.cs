@@ -50,10 +50,10 @@ namespace Xpand.Extensions.Reactive.Utility {
         public static IObservable<T> DelayUntil<T, TSignal>(this IObservable<T> source, Func<T, IObservable<TSignal>> triggerSelector) =>
             source.SelectMany(x => triggerSelector(x).Take(1).Select(_ => x));
 
-        public static IObservable<T> DelayRandomly<T>(this IObservable<T> source, int maxValue, int minValue = 0)
+        public static IObservable<T> DelayRandomly<T>(this IObservable<T> source, int maxValue, int minValue = 0,Func<int,TimeSpan> timeSelector = null)
             => source.SelectMany(arg => {
-                var value = Random.Next(minValue, maxValue);
-                return value == 0 ? arg.Observe() : Observable.Timer(TimeSpan.FromSeconds(value)).To(arg);
+                int value = Random.Next(minValue, maxValue);
+                return value == 0 ? arg.Observe() : Observable.Timer((timeSelector?.Invoke(value) ??value.ToSeconds())).To(arg);
             });
     }
 }

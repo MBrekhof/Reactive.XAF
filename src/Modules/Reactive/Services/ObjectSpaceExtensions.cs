@@ -221,18 +221,10 @@ namespace Xpand.XAF.Modules.Reactive.Services{
                 return link.ObjectSpace.CommitChangesAsync().ToObservable().To(link);
             })).PushStackFrame();
         
-        public static IObservable<T> Commit<T>(this IObservable<T> source,RXAction action=RXAction.OnCompleted) where T:IObjectSpaceLink {
-            if (action == RXAction.OnCompleted) {
-                return source.BufferUntilCompleted(true).SelectMany().Take(1).Do(link => link.CommitChanges()).PushStackFrame();    
-            }
+        public static IObservable<T> Commit<T>(this IObservable<T> source,RXAction action=RXAction.OnCompleted) where T:IObjectSpaceLink 
+            => action == RXAction.OnCompleted ? source.BufferUntilCompleted(true).Do(links => links.First().CommitChanges()).PushStackFrame().SelectMany()
+            : action == RXAction.OnNext ? source.Do(link => link.CommitChanges()).PushStackFrame() : throw new NotImplementedException(action.ToString());
 
-            if (action == RXAction.OnNext) {
-                return source.Do(link => link.CommitChanges()).PushStackFrame();
-            }
-
-            throw new NotImplementedException(action.ToString());
-        }
-        
         public static IObservable<T> Reload<T>(this IObservable<T> source,XafApplication application) where T:IObjectSpaceLink 
             => source.Select(item => item.Reload(application)).PushStackFrame();
         public static IObservable<T> Reload<T>(this IObservable<IList<T>> source,XafApplication application) where T:IObjectSpaceLink 

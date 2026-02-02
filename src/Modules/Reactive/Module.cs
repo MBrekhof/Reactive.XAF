@@ -45,7 +45,7 @@ namespace Xpand.XAF.Modules.Reactive {
 
         public override void Setup(ApplicationModulesManager moduleManager){
             base.Setup(moduleManager);
-            moduleManager.Connect()
+            moduleManager.RxAppConnect()
                 .MergeToUnit(FaultHub.Bus.Do(exception => Application.HandleException(exception)))
                 .Subscribe(this);
         }

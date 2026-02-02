@@ -43,5 +43,6 @@
         <PackageReference Include="System.Linq.Async" />
         <PackageReference Include="System.Management" />
         <PackageReference Include="System.Reactive" />
+        <PackageReference Include="System.Text.Json" />
     </ItemGroup>
 </Project>

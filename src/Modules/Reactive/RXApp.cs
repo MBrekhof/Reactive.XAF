@@ -91,7 +91,7 @@ namespace Xpand.XAF.Modules.Reactive{
                 .Do(view => view.ObjectSpace.NonPersistentChangesEnabled = true).ToUnit()
                 .PushStackFrame();
 
-        internal static IObservable<Unit> Connect(this ApplicationModulesManager manager)
+        internal static IObservable<Unit> RxAppConnect(this ApplicationModulesManager manager)
         => manager.Attributes()
                 .Merge(manager.AddNonSecuredTypes())
                 .Merge(manager.MergedExtraEmbeddedModels())
