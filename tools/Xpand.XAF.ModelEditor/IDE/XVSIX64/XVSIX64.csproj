@@ -3,14 +3,20 @@
   <PropertyGroup>
     <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
+        <CopyLocalLockFileAssemblies>True</CopyLocalLockFileAssemblies>
     <DirectoryPackagesPropsPath>$(MSBuildThisFileDirectory)Directory.Packages.props</DirectoryPackagesPropsPath>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|arm64'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|arm64'">
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -19,7 +25,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{2FF505D3-E652-4556-A1A0-A9999A56C22D}</ProjectGuid>
+    <ProjectGuid>{CF815EAB-D21C-4260-B693-0652C4FC1B9A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>XVSIX64</RootNamespace>
@@ -31,6 +37,7 @@
     <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
     <IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>
     <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <CopyOutputSymbolsToOutputDirectory>true</CopyOutputSymbolsToOutputDirectory>
     <StartAction>Program</StartAction>
     <StartProgram Condition="'$(DevEnvDir)' != ''">$(DevEnvDir)devenv.exe</StartProgram>
@@ -56,36 +63,61 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\XpandModelEditor.cs">
-      <Link>XpandModelEditor.cs</Link>
-    </Compile>
-    <Compile Include="ModelEditorCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XpandModelEditor.cs" />
     <Compile Include="XVSIX64Package.cs" />
   </ItemGroup>
+  
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Xpand.XAF.ModelEditor.Win.4.252.0.0.zip" />
-    <None Include="source.extension.vsixmanifest">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Design" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.31902.203" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.1.4058" />
-    <PackageReference Include="System.Text.Json" Version="10.0.1" />
-    <PackageReference Include="System.IO.Compression.ZipFile">
-      <Version>4.3.0</Version>
-      
-    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.32112.339" ExcludeAssets="runtime" NoWarn="NU1604" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.14.2120" NoWarn="NU1604" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
+  <ItemGroup>
+  <PackageReference Include="System.Text.Json" Version="10.0.1">
+    <ExcludeAssets>none</ExcludeAssets>
+    <PrivateAssets>none</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="Microsoft.VisualStudio.SolutionPersistence" Version="1.0.52">
+    <ExcludeAssets>none</ExcludeAssets>
+    <PrivateAssets>none</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="Microsoft.IO.Redist" Version="6.1.3">
+    <ExcludeAssets>none</ExcludeAssets>
+    <PrivateAssets>none</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.1">
+    <ExcludeAssets>none</ExcludeAssets>
+    <PrivateAssets>none</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="System.IO.Pipelines" Version="10.0.1">
+    <ExcludeAssets>none</ExcludeAssets>
+    <PrivateAssets>none</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="System.Memory" Version="4.6.3">
+    <ExcludeAssets>none</ExcludeAssets>
+    <PrivateAssets>none</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2">
+    <ExcludeAssets>none</ExcludeAssets>
+    <PrivateAssets>none</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.6.3">
+    <ExcludeAssets>none</ExcludeAssets>
+    <PrivateAssets>none</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="System.Buffers" Version="4.6.1">
+    <ExcludeAssets>none</ExcludeAssets>
+    <PrivateAssets>none</PrivateAssets>
+  </PackageReference>
+  <PackageReference Include="System.IO.Compression.ZipFile">
+    <Version>4.3.0</Version>
+  </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <VSCTCompile Include="XVSIX64Package.vsct">
@@ -95,22 +127,67 @@
   <ItemGroup>
     <Content Include="Resources\ModelEditorCommand.png" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+  <ItemGroup>
+    <Compile Include="ModelEditorCommand.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Xpand.XAF.ModelEditor.Win.4.252.0.0.zip" />
+    <None Include="source.extension.vsixmanifest">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <Target Name="EnsureJsonIncluded" AfterTargets="Build">
+    <ItemGroup>
+      
+      <VSIXSourceItem Include="$(TargetDir)System.Text.Json.dll" />
+      <VSIXSourceItem Include="$(TargetDir)System.Threading.Tasks.Extensions.dll" />
+    </ItemGroup>
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <Target Name="ForceIncludeJson" AfterTargets="CopyFilesToOutputDirectory" BeforeTargets="CreateVsixContainer">
+  <ItemGroup>
+    <VSIXSourceItem Include="$(TargetDir)System.Text.Json.dll">
+      <VSIXSubPath>.</VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(TargetDir)Microsoft.VisualStudio.SolutionPersistence.dll">
+      <VSIXSubPath>.</VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(TargetDir)System.Threading.Tasks.Extensions.dll">
+      <VSIXSubPath>.</VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(TargetDir)System.Text.Encodings.Web.dll">
+      <VSIXSubPath>.</VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(TargetDir)System.Memory.dll">
+      <VSIXSubPath>.</VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(TargetDir)System.Runtime.CompilerServices.Unsafe.dll">
+      <VSIXSubPath>.</VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(TargetDir)System.Buffers.dll">
+      <VSIXSubPath>.</VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(TargetDir)Microsoft.Bcl.AsyncInterfaces.dll">
+      <VSIXSubPath>.</VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(TargetDir)System.IO.Pipelines.dll">
+      <VSIXSubPath>.</VSIXSubPath>
+    </VSIXSourceItem>
+    <VSIXSourceItem Include="$(TargetDir)Microsoft.IO.Redist.dll">
+      <VSIXSubPath>.</VSIXSubPath>
+    </VSIXSourceItem>
+  </ItemGroup>
+  <Message Text="FORCED: Including dll in VSIX" Importance="high" />
+</Target>
+<ItemGroup>
+  
+  <!-- Also include dependencies -->
+  <!-- <Content Include="$(NuGetPackageRoot)\system.text.encodings.web\10.0.1\lib\net48\System.Text.Encodings.Web.dll">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <IncludeInVSIX>true</IncludeInVSIX>
+  </Content>
+  <Content Include="$(NuGetPackageRoot)\system.memory\4.6.0\lib\netstandard2.0\System.Memory.dll">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <IncludeInVSIX>true</IncludeInVSIX>
+  </Content> -->
+</ItemGroup>
 </Project>
-
-
-
-
-
-
-
-
