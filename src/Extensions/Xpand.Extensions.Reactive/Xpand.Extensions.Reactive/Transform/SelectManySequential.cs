@@ -52,13 +52,13 @@ namespace Xpand.Extensions.Reactive.Transform{
             => source.SelectManySequential((arg1, _) => selector(arg1));
         
         public static IObservable<TResult> SelectManySequential<T1, TResult>(this IObservable<T1> source, Func<T1,int, IObservable<TResult>> selector) 
-            => source.Select(item => Observable.Defer(() => selector(item,0))).Concat();
+            => source.Select((item,index) => Observable.Defer(() => selector(item,index))).Concat();
         
         
         private static readonly ConditionalWeakTable<object, object> SequencerMap = new();
         
         public static IObservable<TResult> SelectManySequential<TResult, TKey, T>(this T value, Func<IObservable<TResult>> action, Func<T, TKey> keySelector,
-            ConcurrentDictionary<TKey, ISubject<Func<IObservable<Unit>>>> queues,[CallerMemberName]string memberName="",[CallerFilePath]string filePath="",[CallerLineNumber]int lineNumber=0) {
+            ConcurrentDictionary<TKey, ISubject<Func<IObservable<Unit>>>> queues) {
             return Observable.Defer(() => {
                 var key = keySelector(value);
                 return ((AsyncKeyedSequencer<TKey>)SequencerMap.GetValue(queues, _ => new AsyncKeyedSequencer<TKey>()))!
