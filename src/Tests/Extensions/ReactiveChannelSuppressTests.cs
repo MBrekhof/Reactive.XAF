@@ -13,7 +13,7 @@ using Xpand.TestsLib.Common;
 
 namespace Xpand.Extensions.Tests{
     [TestFixture]
-    public class RpcChannelSuppressTests : FaultHubTestBase {
+    public class ReactiveChannelSuppressTests : FaultHubTestBase {
         [Test]
         public void Suppress_Operator_Filters_Item_When_Handler_Returns_True() {
             var key = "Suppress-true-key";
@@ -87,7 +87,7 @@ namespace Xpand.Extensions.Tests{
         
         [Test]
         public void Suppress_Operator_Works_With_Type_Keys() {
-            var key = typeof(RpcChannelTests); 
+            var key = typeof(ReactiveChannelTests); 
             var itemToSuppress = "Suppress-me";
 
             var handler = key.Suppress<string,Type>()
@@ -191,7 +191,7 @@ namespace Xpand.Extensions.Tests{
             source.OnNext("Item-1");
             observer.ItemCount.ShouldBe(0);
 
-            RpcChannel.Reset();
+            ReactiveChannel.Reset();
 
             source.OnNext("Item-2");
 

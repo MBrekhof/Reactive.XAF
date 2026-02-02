@@ -5,7 +5,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Xpand.Extensions.Reactive.Channels{
-    public static class RpcChannelInject {
+    public static class ReactiveChannelInject {
         public static IObservable<TSource> Inject<TSource, TSignal>(this IObservable<TSource> source, Func<TSource, TSignal> signalFactory) 
             => source.SelectMany(item => {
                 var signal = signalFactory(item);

@@ -24,7 +24,7 @@ namespace Xpand.XAF.Modules.Telegram.Tests.Common {
 		public override void Dispose() {
 			base.Dispose();
 			TelegramBotService.ClientFactory = _clientFactory;
-			RpcChannel.Reset();
+			ReactiveChannel.Reset();
 			TelegramBotService.Clients.Clear();
 		}
 

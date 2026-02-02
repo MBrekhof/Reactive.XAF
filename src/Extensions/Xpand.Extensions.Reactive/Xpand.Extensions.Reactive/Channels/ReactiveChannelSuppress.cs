@@ -3,7 +3,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 
 namespace Xpand.Extensions.Reactive.Channels{
-    public static class RpcChannelSuppress {
+    public static class ReactiveChannelSuppress {
         public static IObservable<TSource> Suppress<TSource, TSignal>(this IObservable<TSource> source, Func<TSource, TSignal> signalFactory) 
             => source.SelectMany(item => {
                 var signal = signalFactory(item);
@@ -14,7 +14,7 @@ namespace Xpand.Extensions.Reactive.Channels{
             });
 
         public static IObservable<Unit> Suppress<T>(this Type key, Func<T, bool> predicate = null) 
-            => Suppress<T, Type>(key, predicate);
+            => key.Suppress<T, Type>(predicate);
 
         public static IObservable<Unit> Suppress<T, TKey>(this TKey key, Func<T, bool> predicate = null) where TKey : notnull
             => key.HandleRequest()

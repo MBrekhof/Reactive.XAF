@@ -19,10 +19,10 @@ using Xpand.Extensions.Tests.FaultHubTests;
 using Xpand.TestsLib.Common;
 
 namespace Xpand.Extensions.Tests {
-    public class RpcChannelTests : FaultHubTestBase {
+    public class ReactiveChannelTests : FaultHubTestBase {
         [SetUp]
         public override void Setup() {
-            var rpcChannelType = typeof(RpcChannel);
+            var rpcChannelType = typeof(ReactiveChannel);
             var fieldInfo = rpcChannelType.GetField("Channels", BindingFlags.Static | BindingFlags.NonPublic);
             fieldInfo.ShouldNotBeNull();
 
@@ -145,7 +145,7 @@ namespace Xpand.Extensions.Tests {
             Console.SetOut(stringWriter);
 
             var key = "expiration-test";
-            RpcChannel.SlidingExpiration = TimeSpan.FromMilliseconds(100);
+            ReactiveChannel.SlidingExpiration = TimeSpan.FromMilliseconds(100);
 
             try {
                 using (key.HandleRequest("response 1").Test()) {

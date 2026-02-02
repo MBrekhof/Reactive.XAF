@@ -9,7 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Xpand.Extensions.Reactive.Transform;
 
 namespace Xpand.Extensions.Reactive.Channels {
-    public static class RpcChannel {
+    public static class ReactiveChannel {
         [SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Local")]
         private record CacheKey( Type RequestType, Type ResponseType, object KeyObject) {
             public override string ToString()
@@ -20,7 +20,7 @@ namespace Xpand.Extensions.Reactive.Channels {
         
         public static void Reset() {
             Channels.Compact(1.0);
-            LogFast($"{nameof(RpcChannel)} cache cleared.");
+            LogFast($"{nameof(ReactiveChannel)} cache cleared.");
         }
         public static IObservable<Unit> HandleRequest<TKey, TResponse>(this TKey key, TResponse value) where TKey : notnull
             => new RpcHandler<TKey>(key).With(value);
@@ -38,25 +38,25 @@ namespace Xpand.Extensions.Reactive.Channels {
         
         internal static string KeyString(object key) => $"{key.GetType().Name} - {key.GetHashCode()}";
 
-        internal static RpcChannel<TKey, TRequest, TResponse> Get<TKey, TRequest, TResponse>(TKey key) where TKey : notnull {
+        internal static ReactiveChannel<TKey, TRequest, TResponse> Get<TKey, TRequest, TResponse>(TKey key) where TKey : notnull {
             var cacheKey = new CacheKey( typeof(TRequest), typeof(TResponse), key);
             LogFast($"Attempting to get or create RpcChannel with stable cache cacheKey: {cacheKey}");
             return Channels.GetOrCreate(cacheKey, entry => {
                 LogFast($"Cache miss for key: {cacheKey}. Creating new RpcChannel.");
                 entry.SetSlidingExpiration(SlidingExpiration);
-                return new RpcChannel<TKey, TRequest, TResponse>();
+                return new ReactiveChannel<TKey, TRequest, TResponse>();
             });
         }
         
     }
 
-    internal class RpcChannel<TKey, TRequest, TResponse> where TKey : notnull {
+    internal class ReactiveChannel<TKey, TRequest, TResponse> where TKey : notnull {
         private record RequestMessage(TKey Key, Guid CorrelationId, TRequest Request);
         private record ResponseMessage(Guid CorrelationId, Notification<TResponse> Result);
         private readonly ISubject<RequestMessage> _requests = new Subject<RequestMessage>();
         private readonly ISubject<ResponseMessage> _responses = new Subject<ResponseMessage>();
 
-        public RpcChannel(){
+        public ReactiveChannel(){
             LogFast($"RpcChannel constructor called for <{typeof(TKey).Name}, {typeof(TRequest).Name}, {typeof(TResponse).Name}>"); 
         }
 
@@ -64,9 +64,9 @@ namespace Xpand.Extensions.Reactive.Channels {
         
         internal IObservable<Unit> HandleRequests(TKey key, Func<TRequest, IObservable<TResponse>> handler)
             => _requests.AsObservable().ObserveOn(TaskPoolScheduler.Default)
-                .Do(reqMsg => LogFast($"Request received on channel for key '{RpcChannel.KeyString(reqMsg.Key)}', CorrelationId: {reqMsg.CorrelationId}"))
+                .Do(reqMsg => LogFast($"Request received on channel for key '{ReactiveChannel.KeyString(reqMsg.Key)}', CorrelationId: {reqMsg.CorrelationId}"))
                 .Where(reqMsg => EqualityComparer<TKey>.Default.Equals(reqMsg.Key, key))
-                .Do(reqMsg => LogFast($"Request handler matched for key '{RpcChannel.KeyString(key)}', CorrelationId: {reqMsg.CorrelationId}"))
+                .Do(reqMsg => LogFast($"Request handler matched for key '{ReactiveChannel.KeyString(key)}', CorrelationId: {reqMsg.CorrelationId}"))
                 .SelectMany(requestMsg =>
                     handler(requestMsg.Request)
                         .Take(1)
@@ -77,7 +77,7 @@ namespace Xpand.Extensions.Reactive.Channels {
                                 return Observable.Return(notification);
                             }
 
-                            LogFast($"Handler for key '{RpcChannel.KeyString(key)}' failed. Reporting to AppDomain error channel for CorrelationId: {requestMsg.CorrelationId}");
+                            LogFast($"Handler for key '{ReactiveChannel.KeyString(key)}' failed. Reporting to AppDomain error channel for CorrelationId: {requestMsg.CorrelationId}");
                             
                             var reportErrorStream = AppDomain.CurrentDomain.MakeRequest()
                                 .With<Exception, Unit>(notification.Exception)
@@ -91,7 +91,7 @@ namespace Xpand.Extensions.Reactive.Channels {
                                 .Do(_ => LogFast($"[TID:{Environment.CurrentManagedThreadId}] EXITING error report SelectMany for CorrelationId: {requestMsg.CorrelationId}"))
                                 .Select(_ => notification);
                         })
-                        .Do(notification => LogFast($"Handler for key '{RpcChannel.KeyString(key)}' produced a notification ({notification.Kind}) for CorrelationId: {requestMsg.CorrelationId}"))
+                        .Do(notification => LogFast($"Handler for key '{ReactiveChannel.KeyString(key)}' produced a notification ({notification.Kind}) for CorrelationId: {requestMsg.CorrelationId}"))
                         .Select(notification => new ResponseMessage(requestMsg.CorrelationId, notification))
                 )
                 .Do(responseMsg => {
@@ -105,7 +105,7 @@ namespace Xpand.Extensions.Reactive.Channels {
         internal IObservable<TResponse> MakeRequest(TKey key, TRequest request) 
             => Observable.Create<TResponse>(observer => {
                 var correlationId = Guid.NewGuid();
-                LogFast($"Making request with key '{RpcChannel.KeyString(key)}', generated CorrelationId: {correlationId}");
+                LogFast($"Making request with key '{ReactiveChannel.KeyString(key)}', generated CorrelationId: {correlationId}");
 
                 var responseSubscription = _responses
                     .Where(response => response.CorrelationId == correlationId)
@@ -115,7 +115,7 @@ namespace Xpand.Extensions.Reactive.Channels {
                     .Dematerialize() 
                     .Subscribe(observer);
 
-                LogFast($"Publishing request message to subject for key '{RpcChannel.KeyString(key)}', CorrelationId: {correlationId}");
+                LogFast($"Publishing request message to subject for key '{ReactiveChannel.KeyString(key)}', CorrelationId: {correlationId}");
                 _requests.OnNext(new RequestMessage(key, correlationId, request));
 
                 return responseSubscription;
@@ -126,21 +126,21 @@ namespace Xpand.Extensions.Reactive.Channels {
         private readonly TKey _key;
         internal RpcRequester(TKey key) => _key = key;
         public IObservable<TResponse> TryWith<TRequest, TResponse>(TRequest request, TResponse defaultValue = default) {
-            var channel = RpcChannel.Get<TKey, TRequest, TResponse>(_key);
+            var channel = ReactiveChannel.Get<TKey, TRequest, TResponse>(_key);
             if (!channel.HasSubscribers) {
-                LogFast($"No subscribers for key '{RpcChannel.KeyString(_key)}'. Returning default value: {defaultValue}");
+                LogFast($"No subscribers for key '{ReactiveChannel.KeyString(_key)}'. Returning default value: {defaultValue}");
                 return Observable.Return(defaultValue);
             }
             return With<TRequest, TResponse>(request);
         }
         public IObservable<TResponse> With<TResponse>() {
-            LogFast($"Requester for key '{RpcChannel.KeyString(_key)}' making a request with no payload (Unit).");
-            return RpcChannel.Get<TKey, Unit, TResponse>(_key).MakeRequest(_key, Unit.Default);
+            LogFast($"Requester for key '{ReactiveChannel.KeyString(_key)}' making a request with no payload (Unit).");
+            return ReactiveChannel.Get<TKey, Unit, TResponse>(_key).MakeRequest(_key, Unit.Default);
         }
 
         public IObservable<TResponse> With<TRequest, TResponse>(TRequest request) {
-            LogFast($"Requester for key '{RpcChannel.KeyString(_key)}' making a request with payload: {request}");
-            return RpcChannel.Get<TKey, TRequest, TResponse>(_key).MakeRequest(_key, request);
+            LogFast($"Requester for key '{ReactiveChannel.KeyString(_key)}' making a request with payload: {request}");
+            return ReactiveChannel.Get<TKey, TRequest, TResponse>(_key).MakeRequest(_key, request);
         }
     }
 
@@ -149,18 +149,18 @@ namespace Xpand.Extensions.Reactive.Channels {
         internal RpcHandler(TKey key) => _key = key;
 
         public IObservable<Unit> With<TResponse>(IObservable<TResponse> source) {
-            LogFast($"Handler for key '{RpcChannel.KeyString(_key)}' is being set up with an IObservable<TResponse> source.");
+            LogFast($"Handler for key '{ReactiveChannel.KeyString(_key)}' is being set up with an IObservable<TResponse> source.");
             return With<Unit, TResponse>(_ => source.Take(1));
         }
 
         public IObservable<Unit> With<TResponse>(TResponse value) {
-            LogFast($"Handler for key '{RpcChannel.KeyString(_key)}' is being set up with a single value: {value}");
+            LogFast($"Handler for key '{ReactiveChannel.KeyString(_key)}' is being set up with a single value: {value}");
             return With<Unit, TResponse>(_ => Observable.Return(value));
         }
 
         public IObservable<Unit> With<TRequest, TResponse>(Func<TRequest, IObservable<TResponse>> handler) {
-            LogFast($"Handler for key '{RpcChannel.KeyString(_key)}' is being set up with a function delegate.");
-            return RpcChannel.Get<TKey, TRequest, TResponse>(_key).HandleRequests(_key, handler);
+            LogFast($"Handler for key '{ReactiveChannel.KeyString(_key)}' is being set up with a function delegate.");
+            return ReactiveChannel.Get<TKey, TRequest, TResponse>(_key).HandleRequests(_key, handler);
         }
 
     
