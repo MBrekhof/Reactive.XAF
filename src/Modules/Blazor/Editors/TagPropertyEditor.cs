@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Linq;
-using DevExpress.Blazor;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Blazor.Components;
 using DevExpress.ExpressApp.Blazor.Components.Models;
@@ -19,17 +17,12 @@ using EditorAliases = Xpand.Extensions.XAF.Attributes.EditorAliases;
 
 namespace Xpand.XAF.Modules.Blazor.Editors {
     [PropertyEditor(typeof(object), EditorAliases.Tag,false)]
-    public class TagPropertyEditor:ComponentPropertyEditor {
-        public TagPropertyEditor(Type objectType, IModelMemberViewItem model) : base(objectType, model) {
-        }
-
-        
-		class DxTagBoxToStringAdapter : DxTagBoxAdapter<DataItem<object>, object> {
-			public DxTagBoxToStringAdapter(DxTagBoxModel<DataItem<object>, object> componentModel) : base(componentModel) { }
-			public override object GetValue() {
-                return base.GetValue().ToString().Split($"{CheckedListBoxItemsDisplayTextProvider.MultiTextSeparator} ");
-            }
-			// public override void SetValue(object value) {
+    public class TagPropertyEditor(Type objectType, IModelMemberViewItem model)
+	    : ComponentPropertyEditor(objectType, model) {
+	    class DxTagBoxToStringAdapter(DxTagBoxModel<DataItem<object>, object> componentModel)
+		    : DxTagBoxAdapter<DataItem<object>, object>(componentModel) {
+		    public override object GetValue() => base.GetValue().ToString()?.Split($"{CheckedListBoxItemsDisplayTextProvider.MultiTextSeparator} ");
+		    // public override void SetValue(object value) {
 			// 	string str = (string)value;
 			// 	object[] values = !string.IsNullOrEmpty(str) ? str.Split(CheckedListBoxItemsDisplayTextProvider.MultiTextSeparator).Select(str => str.Trim()).ToArray() : null;
 			// 	base.SetValue(values);
@@ -39,7 +32,7 @@ namespace Xpand.XAF.Modules.Blazor.Editors {
 		protected override IComponentAdapter CreateComponentAdapter() {
 			var componentModel = new DxTagBoxModel<DataItem<object>, object>();
             var dataSourcePropertyAttribute = MemberInfo.FindAttribute<DataSourcePropertyAttribute>();
-            IEnumerable<DataItem<object>> dataItems = new DataItem<object>[0];
+            IEnumerable<DataItem<object>> dataItems = Array.Empty<DataItem<object>>();
             if (dataSourcePropertyAttribute != null) {
                 var datasource = ((IEnumerable) MemberInfo.Owner
                     .FindMember(dataSourcePropertyAttribute.DataSourceProperty).GetValue(CurrentObject)).Cast<object>();
@@ -65,7 +58,7 @@ namespace Xpand.XAF.Modules.Blazor.Editors {
 		protected override RenderFragment CreateViewComponentCore(object dataContext) 
             => DisplayTextRenderer.Create(new DisplayTextModel {DisplayText = GetPropertyDisplayValue(dataContext)});
 
-        protected string GetPropertyDisplayValue(object dataContext) 
+		public override string GetPropertyDisplayValue(object dataContext) 
             => CheckedListBoxItemsDisplayTextProvider.GetDisplayText((string)this.GetPropertyValue(dataContext), PropertyName, dataContext as ICheckedListBoxItemsProvider);
     }
 }

@@ -131,7 +131,7 @@
     <Compile Include="ModelEditorCommand.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Xpand.XAF.ModelEditor.Win.4.252.0.0.zip" />
+    <EmbeddedResource Include="Resources\Xpand.XAF.ModelEditor.Win.4.252.1.1.zip" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>

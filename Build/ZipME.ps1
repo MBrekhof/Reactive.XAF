@@ -38,6 +38,33 @@ if (!(Test-AzDevops) -and !$SkipIDEBuild){
     Set-Location "$Root\tools\Xpand.XAF.ModelEditor\IDE\ModelEditor.Win\Xpand.XAF.ModelEditor.Win"
     dotnet publish -p:PublishProfile="Folderprofile.pubxml" ".\Xpand.XAF.ModelEditor.Win.csproj"
     Set-Location "$(Get-Location)\bin\Release\net10.0-windows\publish"
+    $nugetCache = "$env:USERPROFILE\.nuget\packages"
+    
+    function Inject-Dependency($package, $version, $dll) {
+        $paths = @(
+            "$nugetCache\$package\$version\lib\net472\$dll"
+            "$nugetCache\$package\$version\lib\net48\$dll"
+            "$nugetCache\$package\$version\lib\netstandard2.0\$dll"
+        )
+        $source = $paths | Where-Object { Test-Path $_ } | Select-Object -First 1
+        if ($source) {
+            Copy-Item $source . -Force
+            Write-Host "Injected: $dll"
+        } else {
+            Write-Warning "Missing dependency: $dll from $package $version"
+        }
+    }
+    
+    Inject-Dependency "system.text.json" "10.0.1" "System.Text.Json.dll"
+    Inject-Dependency "microsoft.visualstudio.solutionpersistence" "1.0.52" "Microsoft.VisualStudio.SolutionPersistence.dll"
+    Inject-Dependency "system.threading.tasks.extensions" "4.6.3" "System.Threading.Tasks.Extensions.dll"
+    Inject-Dependency "system.text.encodings.web" "10.0.1" "System.Text.Encodings.Web.dll"
+    Inject-Dependency "system.memory" "4.6.3" "System.Memory.dll"
+    Inject-Dependency "system.runtime.compilerservices.unsafe" "6.1.2" "System.Runtime.CompilerServices.Unsafe.dll"
+    Inject-Dependency "system.buffers" "4.6.1" "System.Buffers.dll"
+    Inject-Dependency "microsoft.bcl.asyncinterfaces" "10.0.1" "Microsoft.Bcl.AsyncInterfaces.dll"
+    Inject-Dependency "system.io.pipelines" "10.0.1" "System.IO.Pipelines.dll"
+    Inject-Dependency "microsoft.io.redist" "6.1.3" "Microsoft.IO.Redist.dll"
     Get-ChildItem|Copy-Item -Destination "$env:APPDATA\Xpand.XAF.ModelEditor.Win\Xpand.XAF.ModelEditor.Win" -Force -Recurse
     $zip="$(Get-Location)\..\Xpand.XAF.ModelEditor.Win.zip"
     Compress-Files -zipfileName $zip -Force 
