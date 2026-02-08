@@ -8,7 +8,7 @@ using System.Reactive.Subjects;
 using Microsoft.Extensions.Caching.Memory;
 using Xpand.Extensions.Reactive.Transform;
 
-namespace Xpand.Extensions.Reactive.Channels {
+namespace Xpand.Extensions.Reactive.Channel {
     public static class ReactiveChannel {
         [SuppressMessage("ReSharper", "NotAccessedPositionalProperty.Local")]
         private record CacheKey( Type RequestType, Type ResponseType, object KeyObject) {

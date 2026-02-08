@@ -2,7 +2,7 @@
 using DevExpress.ExpressApp;
 using NUnit.Framework;
 using Telegram.Bot;
-using Xpand.Extensions.Reactive.Channels;
+using Xpand.Extensions.Reactive.Channel;
 using Xpand.Extensions.XAF.XafApplicationExtensions;
 using Xpand.TestsLib;
 using Xpand.TestsLib.Common;

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Xpand.Extensions.ExceptionExtensions;
 using Xpand.Extensions.LinqExtensions;
 using Xpand.Extensions.MemoryCacheExtensions;
-using Xpand.Extensions.Reactive.Channels;
+using Xpand.Extensions.Reactive.Channel;
 using Xpand.Extensions.Reactive.Utility;
 
 namespace Xpand.Extensions.Reactive.Relay {

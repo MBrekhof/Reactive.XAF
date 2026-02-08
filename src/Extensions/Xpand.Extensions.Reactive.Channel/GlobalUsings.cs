@@ -1,0 +1,1 @@
+﻿global using static Xpand.Extensions.Tracing.FastLogger;

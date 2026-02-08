@@ -16,6 +16,7 @@
     <CopyLocalLockFileAssemblie>true</CopyLocalLockFileAssemblie>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <NoWarn>NU1701;CS8002;IL2121;CA1416</NoWarn>
@@ -33,15 +34,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Common\AssemblyInfoVersion.cs" Link="Properties\AssemblyInfoVersion.cs" />
-    <Compile Update="ErrorHandling\FaultHub\Transaction.BeginWorkflow.cs">
-      <DependentUpon>Transaction.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ErrorHandling\FaultHub\Transaction.Then.cs">
-      <DependentUpon>Transaction.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ErrorHandling\FaultHub\Transaction.Utility.cs">
-      <DependentUpon>Transaction.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
@@ -49,8 +41,5 @@
         <PackageReference Include="System.Interactive.Async" />
         <PackageReference Include="System.Linq.Async" />
         <PackageReference Include="System.Reactive" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\Xpand.Extensions.Reactive.Channel\Xpand.Extensions.Reactive.Channel.csproj" />
     </ItemGroup>
 </Project>

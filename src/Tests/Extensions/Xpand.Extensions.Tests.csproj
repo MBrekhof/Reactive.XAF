@@ -29,6 +29,9 @@
     <Reference Include="Xpand.Extensions.Reactive.Relay">
       <HintPath>..\..\..\bin\Xpand.Extensions.Reactive.Relay.dll</HintPath>
     </Reference>
+<!--      <Reference Include="Xpand.Extensions.Reactive.Channel">-->
+<!--      <HintPath>..\..\..\bin\Xpand.Extensions.Reactive.Channel.dll</HintPath>-->
+<!--    </Reference>-->
     <Reference Include="Xpand.Extensions.XAF">
       <HintPath>..\..\..\bin\Xpand.Extensions.XAF.dll</HintPath>
     </Reference>
@@ -63,16 +66,16 @@
       <DependentUpon>FastLoggerTests.cs</DependentUpon>
     </Compile>
     <Compile Update="ReactiveChannelSuppressTests.cs">
-      <DependentUpon>RpcChannelTests.cs</DependentUpon>
+      <DependentUpon>ReactiveChannelTests.cs</DependentUpon>
     </Compile>
     <Compile Update="ReactiveChannelInjectTests.cs">
-      <DependentUpon>RpcChannelTests.cs</DependentUpon>
+      <DependentUpon>ReactiveChannelTests.cs</DependentUpon>
     </Compile>
     <Compile Update="ReactiveChannelInjectWithContextTests.cs">
-      <DependentUpon>RpcChannelTests.cs</DependentUpon>
+      <DependentUpon>ReactiveChannelTests.cs</DependentUpon>
     </Compile>
     <Compile Update="ReactiveChannelSuppressWithContextTests.cs">
-      <DependentUpon>RpcChannelTests.cs</DependentUpon>
+      <DependentUpon>ReactiveChannelTests.cs</DependentUpon>
     </Compile>
   </ItemGroup>
     <ItemGroup>
@@ -95,4 +98,5 @@
         <PackageReference Include="Lib.Harmony.Thin" />
         
     </ItemGroup>
+    
 </Project>

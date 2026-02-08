@@ -2,7 +2,7 @@
 using System.Reactive;
 using System.Reactive.Linq;
 
-namespace Xpand.Extensions.Reactive.Channels{
+namespace Xpand.Extensions.Reactive.Channel{
     public static class ReactiveChannelSuppress {
         public static IObservable<TSource> Suppress<TSource, TSignal>(this IObservable<TSource> source, Func<TSource, TSignal> signalFactory) 
             => source.SelectMany(item => {

@@ -19,7 +19,7 @@ using Telegram.Bot.Requests.Abstractions;
 using Telegram.Bot.Types;
 using Xpand.Extensions.LinqExtensions;
 using Xpand.Extensions.Numeric;
-using Xpand.Extensions.Reactive.Channels;
+using Xpand.Extensions.Reactive.Channel;
 using Xpand.Extensions.Reactive.Combine;
 using Xpand.Extensions.Reactive.Relay;
 using Xpand.Extensions.Reactive.Transform;
