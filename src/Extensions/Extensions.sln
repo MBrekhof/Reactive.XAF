@@ -39,6 +39,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xpand.Extensions.Reactive.R
 		{2856A16A-A776-4A9B-B2C1-518644B9B2F3} = {2856A16A-A776-4A9B-B2C1-518644B9B2F3}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xpand.Extensions.Reactive.Channel", "Xpand.Extensions.Reactive.Channel\Xpand.Extensions.Reactive.Channel.csproj", "{7F8E6C07-FF00-4E3E-A8FF-35545E3A1F7C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2856A16A-A776-4A9B-B2C1-518644B9B2F3} = {2856A16A-A776-4A9B-B2C1-518644B9B2F3}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug_20.1|Any CPU = Debug_20.1|Any CPU
@@ -87,6 +92,12 @@ Global
 		{57814422-2F47-407F-B35D-3FAECA9EF10B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57814422-2F47-407F-B35D-3FAECA9EF10B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57814422-2F47-407F-B35D-3FAECA9EF10B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F8E6C07-FF00-4E3E-A8FF-35545E3A1F7C}.Debug_20.1|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F8E6C07-FF00-4E3E-A8FF-35545E3A1F7C}.Debug_20.1|Any CPU.Build.0 = Debug|Any CPU
+		{7F8E6C07-FF00-4E3E-A8FF-35545E3A1F7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F8E6C07-FF00-4E3E-A8FF-35545E3A1F7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F8E6C07-FF00-4E3E-A8FF-35545E3A1F7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F8E6C07-FF00-4E3E-A8FF-35545E3A1F7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

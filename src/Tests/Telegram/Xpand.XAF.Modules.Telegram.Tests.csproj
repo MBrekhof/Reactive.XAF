@@ -78,4 +78,7 @@
         <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\..\Extensions\Xpand.Extensions.Reactive.Channel\Xpand.Extensions.Reactive.Channel.csproj" />
+    </ItemGroup>
 </Project>
