@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Xpand.Extensions.Reactive.Channel</id>
+    <version>4.252.1.0</version>
+    <authors>eXpandFramework</authors>
+    <owners>eXpandFramework</owners>
+    <licenseUrl>https://github.com/eXpandFramework/DevExpress.XAF/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/eXpandFramework/Reactive.XAF/blob/master/src/Extensions/Xpand.Extensions.Reactive.Channel</projectUrl>
+    <iconUrl>http://sign.expandframework.com</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Xpand.Extensions.Reactive.Channel</description>
+    <releaseNotes>https://github.com/eXpandFramework/Reactive.XAF/releases</releaseNotes>
+    <copyright>eXpandFramework.com</copyright>
+    <tags>DevExpress XAF modules, eXpandFramework, XAF, eXpressApp, Xpand.Extensions.Reactive.Channel, 25.2.3</tags>
+    <dependencies>
+      <group targetFramework="net10.0">
+        <dependency id="Xpand.Extensions" version="4.252.1.0" />
+        <dependency id="Xpand.Extensions.Reactive" version="4.252.1.0" />
+        <dependency id="Microsoft.Extensions.Caching.Memory" version="10.0.1" />
+        <dependency id="System.Interactive" version="6.0.1" />
+        <dependency id="System.Interactive.Async" version="6.0.1" />
+        <dependency id="System.Linq.Async" version="6.0.1" />
+        <dependency id="System.Reactive" version="6.0.1" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Xpand.Extensions.Reactive.Channel.dll" target="lib\net10.0\Xpand.Extensions.Reactive.Channel.dll" />
+    <file src="Xpand.Extensions.Reactive.Channel.pdb" target="lib\net10.0\Xpand.Extensions.Reactive.Channel.pdb" />
+    <file src="..\build\Targets\CopySymbols.targets" target="build\Xpand.Extensions.Reactive.Channel.targets" />
+    <file src="..\build\Targets\CopySymbols.ps1" target="build\CopySymbols.ps1" />
+  </files>
+</package>

@@ -15,7 +15,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Xpand.Extensions.LinqExtensions;
 using Xpand.Extensions.Numeric;
-using Xpand.Extensions.Reactive.Channels;
+using Xpand.Extensions.Reactive.Channel;
 using Xpand.Extensions.Reactive.Combine;
 using Xpand.Extensions.Reactive.ErrorHandling;
 using Xpand.Extensions.Reactive.Relay;

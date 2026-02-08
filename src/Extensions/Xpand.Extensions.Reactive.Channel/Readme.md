@@ -1,81 +1,78 @@
-# Xpand.Extensions.Reactive.Relay
+# The Reactive Channel API
 
-[![Nuget](https://img.shields.io/nuget/v/Xpand.Extensions.Reactive.Relay.svg)](https://www.nuget.org/packages/Xpand.Extensions.Reactive.Relay/)
+[![Nuget](https://img.shields.io/nuget/v/Xpand.Extensions.Reactive.Utility.svg)](https://www.nuget.org/packages/Xpand.Extensions.Reactive.Utility/)
 
-An advanced resilience and error-handling framework for Rx.NET, designed to provide deep, contextual diagnostics and composable, resilient workflows. It replaces lost physical stack traces in asynchronous operations with a clean, logical "story" of the operation, making complex reactive chains fully debuggable.
+A type-safe, memory-managed mechanism for **Behavioral Injection**. It allows developers to intercept, transform, and suppress observable streams at runtime without modifying method signatures, constructor dependencies, or architectural boundaries.
+
+### The Problem: Interface Proliferation
+
+Modern .NET architectures rely heavily on Dependency Injection (DI) to achieve testability and modularity. However, this pattern imposes a significant architectural tax: **Interface Proliferation**.
+
+When you need to inject logging, instrumentation, feature flags, or test doubles into existing business logic, you are forced to:
+1.  Define an abstraction (`ILogger<T>`, `IMetrics`, `IFeatureToggle`).
+2.  Modify the constructor signature.
+3.  Update all call sites and DI registrations.
+
+For mature codebases, this **Constructor Ceremony** creates friction that prevents proper separation of concerns. It couples cross-cutting logic to the object graph's lifetime, making temporal behaviors—such as temporary test overrides or dynamic feature injection—cumbersome to implement.
+
+### The Solution: Behavioral Injection
+
+**The Reactive Channel API** solves this by introducing **Behavioral Injection**: a compile-time type-safe mechanism backed by `System.Reactive` and `MemoryCache`. Unlike traditional DI's resolution-at-startup model, ReactiveChannel operates on **Emission-Time Resolution**: handlers are bound when data flows, not when objects are constructed.
 
 ### Key Features
 
-*   **Contextual Errors:** Instead of a raw exception, you get a `FaultHubException` that tells the full story of the business operation that failed.
-*   **Logical Stack Tracing:** Automatically builds a meaningful, causal stack trace that is preserved across schedulers and asynchronous boundaries.
-*   **Dual Resilience Models:** Provides distinct patterns for **Operator Resilience** (enrich and propagate errors) and **Item Resilience** (enrich, publish, and suppress errors).
-*   **Fluent Transactional API:** A powerful `BeginWorkflow` and `Then` interface for composing complex, multi-step workflows with sophisticated resilience and data salvage strategies.
-*   **Queryable Fault Bus:** A centralized `FaultHub.Bus` for system-wide monitoring, alerting, and implementing automated recovery logic.
+*   **Zero-Signature Modification:** Inject logic into methods without changing their parameters or the class constructor.
+*   **Emission-Time Resolution:** Bind handlers dynamically when data flows, enabling "Flash Behaviors" that exist only for the duration of a request or test.
+*   **Auto-Expiring Channels:** Channels are backed by `MemoryCache` with sliding expiration, ensuring no memory leaks from long-running processes.
+*   **Contextual Scoping:** Use `[CallerMemberName]` to surgically target specific call sites for injection, avoiding global side effects.
+*   **Global Fault Integration:** Errors within handlers automatically propagate to the `FaultHub`, ensuring no silent failures even in decoupled workflows.
 
 ## Documentation
 
-This framework is documented through two primary guides that cover its philosophy, core patterns, and formal API.
-
-*   **[The Unbreakable Stream: A Developer & AI Guide](./docs/The%20Unbreakable%20Stream%20A%20Developer%20&%20AI%20Guide%20to%20Fixing%20the%20Billion-Dollar%20Mistake.md)**
-    This is the foundational guide. It explains the core principles of the framework, the distinction between Operator and Item resilience, and the best practices for building robust, "unbreakable" reactive streams. It serves as the architectural contract for the entire system.
-
-*   **[The Reactive Transactional API: Composing Resilient Workflows](./docs/The%20Reactive%20Transactional%20API%20Composing%20Resilient%20Workflows.md)**
-    This document is the formal API reference for the fluent transactional system. It provides detailed explanations and examples for `BeginWorkflow`, `Then`, `RunFailFast`, `RunToEnd`, and other operators used to compose complex, multi-step business processes.
+*   **[The Reactive Channel API: Behavioral Injection for Observable Workflows](./The%20Reactive%20Channel%20API%20-%20Behavioral%20Injection%20for%20Observable%20Workflows.md)**
+    The comprehensive architectural guide. It details the "Signature Preservation Problem," the three core behavioral patterns (Injection, Suppression, Contextual Injection), and the memory management model that makes this approach safe for high-frequency trading and production environments.
 
 ## Installation
 
-Install the package from NuGet:
+The Reactive Channel API is part of the Xpand Reactive Extensions suite.
 
 ```shell
-dotnet add package Xpand.Extensions.Reactive.Relay
+dotnet add package Xpand.Extensions.Reactive.Utility
 ```
 
-## Quick Start: Building a Diagnostic Story
+## Quick Start: Testing Without Mocks
 
-The core of the framework is its ability to build a logical stack trace. This is achieved by composing two key operators: `PushStackFrame` to add context and `ChainFaultContext` to establish a resilience boundary.
+The most immediate benefit of the Reactive Channel API is **Zero-Mock Testing**. You can test a specific behavior deep within a method without mocking the entire class or its dependencies.
 
 ```csharp
-
-
 public class OrderService {
-    // The top-level operation that represents the main business logic.
-    // It calls a helper and establishes the resilience boundary.
-    public IObservable<Unit> ProcessOrder()
-        => GetOrderDetails()
-            .PushStackFrame() // Adds "ProcessOrder" to the story.
-            .ChainFaultContext(["Boundary"]); // Catches the error and captures the full story.
-
-    // A mid-level helper method.
-    private IObservable<Unit> GetOrderDetails()
-        => ValidateCustomerAsync()
-            .PushStackFrame(); // Adds "GetOrderDetails" to the story.
-
-    // The lowest-level method where the async error occurs.
-    private IObservable<Unit> ValidateCustomerAsync()
-        => Observable.Timer(TimeSpan.FromMilliseconds(20))
-            .SelectMany(_ => Observable.Throw<Unit>(new InvalidOperationException("Async Failure")))
-            .PushStackFrame(); // Adds "ValidateCustomerAsync", the origin of the failure.
+    // Standard business logic. Note: No IValidator injected in constructor.
+    // The "Validation" channel acts as an optional hook.
+    public IObservable<Order> ProcessOrder(Order order) 
+        => Observable.Return(order)
+            .Inject("Validation") // The injection point. 
+            .Select(SaveToDatabase);
+            
+    private Order SaveToDatabase(Order o) { /*...*/ }
 }
 
-// Somewhere in your application startup:
-var orderService = new OrderService();
+// In your Test Fixture:
+[Test]
+public void ProcessOrder_Aborts_On_Validation_Failure() {
+    var service = new OrderService();
+    var invalidOrder = new Order { Amount = -100 };
 
-// Subscribe to the central bus to see the final report.
-FaultHub.Bus.Subscribe(fault => Console.WriteLine(fault));
+    // BIND: Intercept the "Validation" point for this specific test scope.
+    // We replace the stream item with an error, simulating a validation failure.
+    using var _ = "Validation".HandleRequest()
+        .With<Order, Order>(o => Observable.Throw<Order>(new InvalidOperationException("Invalid!")))
+        .Subscribe();
 
-// Execute the operation.
-orderService.ProcessOrder().PublishFaults().Subscribe();
+    // ACT: Run the actual service method.
+    var observer = service.ProcessOrder(invalidOrder).Test();
 
-/*
-Expected Console Output:
-
-Process Order completed with errors (Boundary) <Async Failure>
---- Invocation Stack ---
-  at ValidateCustomerAsync in ...\OrderService.cs:line 21
-  at GetOrderDetails in ...\OrderService.cs:line 15
-  at ProcessOrder in ...\OrderService.cs:line 9
---- Original Exception Details ---
-  System.InvalidOperationException: Async Failure
-  ...
-*/
+    // ASSERT: Verify the behavior changed without mocking the service.
+    observer.Error.ShouldBeOfType<InvalidOperationException>();
+    observer.ErrorMessage.ShouldBe("Invalid!");
+}
 ```

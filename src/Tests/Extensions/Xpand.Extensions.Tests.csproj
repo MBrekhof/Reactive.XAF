@@ -92,10 +92,16 @@
         <PackageReference Include="Microsoft.Reactive.Testing" />
         <PackageReference Include="Moq" />
         <PackageReference Include="NUnit" />
-        
+        <PackageReference Include="Microsoft.Identity.Client" />
         <PackageReference Include="Shouldly" />
         <PackageReference Include="System.Interactive.Async" />
         <PackageReference Include="Lib.Harmony.Thin" />
+        <PackageReference Include="System.Management" />
+        <PackageReference Include="MessagePack" />
+        <PackageReference Include="DevExpress.DataAccess" />
+        <PackageReference Include="DevExpress.DataAccess.UI" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
         
     </ItemGroup>
     

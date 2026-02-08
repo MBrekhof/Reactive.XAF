@@ -19,6 +19,9 @@
     <Reference Include="Xpand.Extensions.Reactive">
       <HintPath>..\..\..\bin\Xpand.Extensions.Reactive.dll</HintPath>
     </Reference>
+    <Reference Include="Xpand.Extensions.Reactive">
+      <HintPath>..\..\..\bin\Xpand.Extensions.Reactive.Channel.dll</HintPath>
+    </Reference>
     <Reference Include="Xpand.TestsLib.Common">
       <HintPath>..\..\..\bin\Xpand.TestsLib.Common.dll</HintPath>
     </Reference>
@@ -77,8 +80,5 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" />
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\..\Extensions\Xpand.Extensions.Reactive.Channel\Xpand.Extensions.Reactive.Channel.csproj" />
     </ItemGroup>
 </Project>

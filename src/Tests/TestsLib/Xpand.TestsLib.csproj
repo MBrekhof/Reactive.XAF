@@ -65,6 +65,8 @@
     </Reference>
   </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="DevExpress.DataAccess" />
+        <PackageReference Include="DevExpress.DataAccess.UI" />
         <PackageReference Include="DevExpress.Win" />
         <PackageReference Include="DevExpress.ExpressApp" />
         <PackageReference Include="DevExpress.ExpressApp.Win" />
@@ -76,7 +78,6 @@
         <PackageReference Include="TextCopy" />
         <PackageReference Include="akarnokd.reactive_extensions" />
         <PackageReference Include="Fasterflect.Xpand" />
-<!--        <PackageReference Include="MagicOnion" />-->
         <PackageReference Include="Microsoft.CodeAnalysis" />
         <PackageReference Include="Microsoft.Data.SqlClient" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
@@ -94,6 +95,7 @@
         <PackageReference Include="System.Interactive.Async" />
         <PackageReference Include="MessagePack" />
         <PackageReference Include="Lib.Harmony.Thin" />
+        <PackageReference Include="Microsoft.Identity.Client" />
     </ItemGroup>
 
 </Project>

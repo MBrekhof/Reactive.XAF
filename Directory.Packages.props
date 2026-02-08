@@ -10,6 +10,8 @@
     <PackageVersion Include="akarnokd.reactive_extensions" Version="0.0.27-alpha" />
     <PackageVersion Include="DevExpress.Diagram.Core" Version="25.2.4" />
     <PackageVersion Include="DevExpress.Drawing.Skia" Version="25.2.4" />
+    <PackageVersion Include="DevExpress.DataAccess.UI" Version="25.2.4" />
+    <PackageVersion Include="DevExpress.DataAccess" Version="25.2.4" />
     <PackageVersion Include="DevExpress.Dashboard.Core" Version="25.2.4" />
     <PackageVersion Include="DevExpress.EasyTest" Version="25.2.4" />
     <PackageVersion Include="DevExpress.ExpressApp.EasyTest.BlazorAdapter" Version="25.2.4" />
