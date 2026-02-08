@@ -37,9 +37,8 @@ using Xpand.XAF.Modules.Workflow.BusinessObjects.Commands;
 namespace Xpand.XAF.Modules.Workflow.Services{
     public static class WorkflowService{
         
-        internal static IObservable<Unit> WorkflowServiceConnect(this ApplicationModulesManager manager){
-            return manager.WhenSetupComplete(application => application.MonitorCommandExecutions()
-                    .MergeToUnit(application.DeferAction(() => application.Modules.OfType<ValidationModule>().First().InitializeRuleSet()))
+        internal static IObservable<Unit> WorkflowServiceConnect(this ApplicationModulesManager manager) 
+            => manager.WhenSetupComplete(application => application.DeferAction(() => application.Modules.OfType<ValidationModule>().First().InitializeRuleSet())
                     .MergeToUnit(application.RefreshCommandSuiteDetailView())
                     .MergeToUnit(application.SynchronizeDashboardItem())
                 )
@@ -51,8 +50,8 @@ namespace Xpand.XAF.Modules.Workflow.Services{
                 .Finally(() => LogFast($"Exiting {nameof(WorkflowServiceConnect)}"))
                 .MergeToUnit(manager.WhenApplication(application => application.Modules.OfType<ValidationModule>().ToNowObservable()
                     .SelectMany(module => module.ProcessEvent(nameof(module.RuleSetInitialized)).Take(1)
-                        .SelectMany(_ => application.WhenExecuteCommands()))));
-        }
+                        .SelectMany(_ => application.MonitorCommandExecutions()
+                            .MergeToUnit(application.WhenExecuteCommands())))));
 
         private static IObservable<Unit> CleanupExecutions(this XafApplication application) {
             var whenProviderObject = application.WhenProviderObject<CommandExecution>(ObjectModification.New);
