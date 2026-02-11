@@ -1,0 +1,54 @@
+#!/bin/bash
+# Pre-commit hook: Build-check changed C# solutions before committing.
+# Install: git config core.hooksPath .githooks
+
+set -e
+
+# Collect staged files (excludes deleted files)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=d)
+
+# Check if any C# or project files are staged
+CS_FILES=$(echo "$STAGED_FILES" | grep -E '\.(cs|csproj)$' || true)
+
+if [ -z "$CS_FILES" ]; then
+    exit 0
+fi
+
+# Determine which solution(s) need building
+BUILD_EXTENSIONS=false
+BUILD_MODULES=false
+
+for file in $CS_FILES; do
+    case "$file" in
+        src/Extensions/*) BUILD_EXTENSIONS=true ;;
+        src/Modules/*|src/Common/*) BUILD_MODULES=true ;;
+        src/Tests/*) BUILD_MODULES=true ;;
+        *) BUILD_MODULES=true ;;
+    esac
+done
+
+FAILED=false
+
+if [ "$BUILD_EXTENSIONS" = true ]; then
+    echo "[pre-commit] Building Extensions.sln..."
+    if ! dotnet build src/Extensions/Extensions.sln --no-restore -consoleLoggerParameters:NoSummary -verbosity:quiet 2>&1; then
+        echo "[pre-commit] Extensions.sln build FAILED"
+        FAILED=true
+    fi
+fi
+
+if [ "$BUILD_MODULES" = true ]; then
+    echo "[pre-commit] Building Modules.sln..."
+    if ! dotnet build src/Modules/Modules.sln --no-restore -consoleLoggerParameters:NoSummary -verbosity:quiet 2>&1; then
+        echo "[pre-commit] Modules.sln build FAILED"
+        FAILED=true
+    fi
+fi
+
+if [ "$FAILED" = true ]; then
+    echo ""
+    echo "[pre-commit] Commit blocked — fix build errors above."
+    exit 1
+fi
+
+echo "[pre-commit] Build passed."
