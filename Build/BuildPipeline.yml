@@ -83,6 +83,10 @@ jobs:
         TestAssembly: '**/Xpand.XAF.Modules.Email.Tests.dll'
       Extensions:
         TestAssembly: '**/Xpand.Extensions.Tests.dll'
+      Relay:
+        TestAssembly: '**/Xpand.Extensions.Reactive.Relay.Tests.dll'
+      Channel:
+        TestAssembly: '**/Xpand.Extensions.Reactive.Channel.Tests.dll'
       GridListEditor:
         TestAssembly: '**/Xpand.XAF.Modules.GridListEditor.Tests.dll'
       Workflow:

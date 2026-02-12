@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputPath>..\..\..\bin</OutputPath>
-    <TargetFramework>net10.0-windows7</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
     <LangVersion>latest</LangVersion>
@@ -29,9 +29,6 @@
     <Reference Include="Xpand.Extensions.Reactive.Relay">
       <HintPath>..\..\..\bin\Xpand.Extensions.Reactive.Relay.dll</HintPath>
     </Reference>
-<!--      <Reference Include="Xpand.Extensions.Reactive.Channel">-->
-<!--      <HintPath>..\..\..\bin\Xpand.Extensions.Reactive.Channel.dll</HintPath>-->
-<!--    </Reference>-->
     <Reference Include="Xpand.Extensions.XAF">
       <HintPath>..\..\..\bin\Xpand.Extensions.XAF.dll</HintPath>
     </Reference>
@@ -46,14 +43,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="FaultHubTests\Resources\Generates_Concise_Execution_Report_For_Web_Scraping_Scenario" />
-    <EmbeddedResource Include="FaultHubTests\Resources\Traverses_Parses_And_Renders_Complex_Nested_Exception_Correctly" />
     <None Remove="FaultHubTests\Resources\Replicates_Production_Report_Issue" />
-    <EmbeddedResource Include="FaultHubTests\Resources\Replicates_Production_Report_Issue" />
     <None Remove="FaultHubTests\Resources\Blacklist_Filters_Framework_Noise_From_Invocation_Stack" />
-    <EmbeddedResource Include="FaultHubTests\Resources\Blacklist_Filters_Framework_Noise_From_Invocation_Stack" />
     <None Remove="FaultHubTests\Resources\Blacklist_FallBack_When_Stack_Empty" />
-    <EmbeddedResource Include="FaultHubTests\Resources\Blacklist_FallBack_When_Stack_Empty" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="FaultHubTests\FaultHubExtensionTest\FaultHubExtensionRenderTests.cs">
@@ -64,18 +56,6 @@
     </Compile>
     <Compile Update="FastLoggerFilteringTests.cs">
       <DependentUpon>FastLoggerTests.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ReactiveChannelSuppressTests.cs">
-      <DependentUpon>ReactiveChannelTests.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ReactiveChannelInjectTests.cs">
-      <DependentUpon>ReactiveChannelTests.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ReactiveChannelInjectWithContextTests.cs">
-      <DependentUpon>ReactiveChannelTests.cs</DependentUpon>
-    </Compile>
-    <Compile Update="ReactiveChannelSuppressWithContextTests.cs">
-      <DependentUpon>ReactiveChannelTests.cs</DependentUpon>
     </Compile>
   </ItemGroup>
     <ItemGroup>

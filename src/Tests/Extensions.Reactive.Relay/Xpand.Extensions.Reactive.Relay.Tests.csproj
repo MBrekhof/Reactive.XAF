@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputPath>..\..\..\bin</OutputPath>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AppendTargetFrameworkToOutputPath>False</AppendTargetFrameworkToOutputPath>
+    <LangVersion>latest</LangVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Xpand.key\xpand.snk</AssemblyOriginatorKeyFile>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <NoWarn>NU1701;CS8002;MSB3277</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Xpand.Extensions">
+      <HintPath>..\..\..\bin\Xpand.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Xpand.Extensions.Reactive">
+      <HintPath>..\..\..\bin\Xpand.Extensions.Reactive.dll</HintPath>
+    </Reference>
+    <Reference Include="Xpand.Extensions.Reactive.Relay">
+      <HintPath>..\..\..\bin\Xpand.Extensions.Reactive.Relay.dll</HintPath>
+    </Reference>
+    <Reference Include="Xpand.Extensions.XAF">
+      <HintPath>..\..\..\bin\Xpand.Extensions.XAF.dll</HintPath>
+    </Reference>
+    <Reference Include="Xpand.Extensions.XAF.Xpo">
+      <HintPath>..\..\..\bin\Xpand.Extensions.XAF.Xpo.dll</HintPath>
+    </Reference>
+    <Reference Include="Xpand.TestsLib.Common">
+      <HintPath>..\..\..\bin\Xpand.TestsLib.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Xpand.TestsLib">
+      <HintPath>..\..\..\bin\Xpand.TestsLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="FaultHubTests\Resources\Replicates_Production_Report_Issue" />
+    <None Remove="FaultHubTests\Resources\Blacklist_Filters_Framework_Noise_From_Invocation_Stack" />
+    <None Remove="FaultHubTests\Resources\Blacklist_FallBack_When_Stack_Empty" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="FaultHubTests\FaultHubExtensionTest\FaultHubExtensionRenderTests.cs">
+      <DependentUpon>FaultHubExtensionTests.cs</DependentUpon>
+    </Compile>
+    <Compile Update="Reactive\ProofOfConcepts\UseContextFlawTests.cs">
+      <DependentUpon>FlowContextTests.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+    <ItemGroup>
+        
+        <PackageReference Include="akarnokd.reactive_extensions" />
+        <PackageReference Include="Fasterflect.Xpand" />
+        <PackageReference Include="MagicOnion" />
+        <PackageReference Include="Humanizer" />
+        <PackageReference Include="Microsoft.CodeAnalysis" />
+        <PackageReference Include="Microsoft.Data.SqlClient" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+        <PackageReference Include="Microsoft.Extensions.Options" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Microsoft.Reactive.Testing" />
+        <PackageReference Include="Moq" />
+        <PackageReference Include="NUnit" />
+        <PackageReference Include="Microsoft.Identity.Client" />
+        <PackageReference Include="Shouldly" />
+        <PackageReference Include="System.Interactive.Async" />
+        <PackageReference Include="Lib.Harmony.Thin" />
+        <PackageReference Include="System.Management" />
+        <PackageReference Include="MessagePack" />
+        <PackageReference Include="DevExpress.DataAccess" />
+        <PackageReference Include="DevExpress.DataAccess.UI" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" />
+        
+    </ItemGroup>
+    <ItemGroup>
+      <EmbeddedResource Include="Resources\Blacklist_FallBack_When_Stack_Empty" />
+      <EmbeddedResource Include="Resources\Blacklist_Filters_Framework_Noise_From_Invocation_Stack" />
+      <EmbeddedResource Include="Resources\Generates_Concise_Execution_Report_For_Web_Scraping_Scenario" />
+      <EmbeddedResource Include="Resources\Replicates_Production_Report_Issue" />
+      <EmbeddedResource Include="Resources\Traverses_Parses_And_Renders_Complex_Nested_Exception_Correctly" />
+    </ItemGroup>
+    
+</Project>

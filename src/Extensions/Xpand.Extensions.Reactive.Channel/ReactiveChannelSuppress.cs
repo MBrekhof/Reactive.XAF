@@ -33,7 +33,12 @@ namespace Xpand.Extensions.Reactive.Channel{
             public IObservable<Unit> Using(Func<TContext, bool> predicate) => key.SuppressWithContext( predicate);
         }
         
-
+        public static IObservable<T> SuppressWithContext<T, TContext, TKey>(this IObservable<T> source, TContext context, TKey key) where TKey : notnull
+            => source.SelectMany(item => key.MakeRequest()
+                .TryWith(context, defaultValue: false)
+                .Where(shouldSuppress => !shouldSuppress)
+                .Select(_ => item));
+        
         public static IObservable<Unit> SuppressWithContext<TContext, TKey>(this TKey key, Func<TContext, bool> predicate) where TKey : notnull 
             => key.HandleRequest().With<TContext, bool>(context => Observable.Return(predicate(context)));
 
