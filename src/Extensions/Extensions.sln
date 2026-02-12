@@ -42,6 +42,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xpand.Extensions.Reactive.Channel", "Xpand.Extensions.Reactive.Channel\Xpand.Extensions.Reactive.Channel.csproj", "{7F8E6C07-FF00-4E3E-A8FF-35545E3A1F7C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2856A16A-A776-4A9B-B2C1-518644B9B2F3} = {2856A16A-A776-4A9B-B2C1-518644B9B2F3}
+		{FFD98CC7-7E8D-4E40-A062-65239BEFEBE6} = {FFD98CC7-7E8D-4E40-A062-65239BEFEBE6}
 	EndProjectSection
 EndProject
 Global

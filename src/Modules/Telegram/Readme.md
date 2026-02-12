@@ -102,17 +102,18 @@ The module follows the Nuget [Version Basics](https://docs.microsoft.com/en-us/n
 |**DevExpress.ExpressApp**|**Any**
  |**DevExpress.ExpressApp.Win**|**Any**
  |**DevExpress.ExpressApp.Validation**|**Any**
-|Xpand.Extensions.Reactive|4.252.1
- |Xpand.Extensions.XAF|4.252.1
- |Xpand.Extensions.XAF.Xpo|4.252.1
- |Xpand.Extensions|4.252.1
- |[Xpand.XAF.Modules.Reactive](https://github.com/eXpandFramework/Reactive.XAF/tree/master/src/Modules/Xpand.XAF.Modules.Reactive)|4.252.1
- |[Xpand.XAF.Modules.Workflow](https://github.com/eXpandFramework/Reactive.XAF/tree/master/src/Modules/Xpand.XAF.Modules.Workflow)|4.252.1
- |[Xpand.XAF.Modules.CloneModelView](https://github.com/eXpandFramework/Reactive.XAF/tree/master/src/Modules/Xpand.XAF.Modules.CloneModelView)|4.252.1
- |[Xpand.XAF.Modules.SuppressConfirmation](https://github.com/eXpandFramework/Reactive.XAF/tree/master/src/Modules/Xpand.XAF.Modules.SuppressConfirmation)|4.252.1
+|Xpand.Extensions.Reactive|4.252.2
+ |Xpand.Extensions.Reactive.Channel|4.252.2
+ |Xpand.Extensions.XAF|4.252.2
+ |Xpand.Extensions.XAF.Xpo|4.252.2
+ |Xpand.Extensions|4.252.2
+ |[Xpand.XAF.Modules.Reactive](https://github.com/eXpandFramework/Reactive.XAF/tree/master/src/Modules/Xpand.XAF.Modules.Reactive)|4.252.2
+ |[Xpand.XAF.Modules.Workflow](https://github.com/eXpandFramework/Reactive.XAF/tree/master/src/Modules/Xpand.XAF.Modules.Workflow)|4.252.2
+ |[Xpand.XAF.Modules.CloneModelView](https://github.com/eXpandFramework/Reactive.XAF/tree/master/src/Modules/Xpand.XAF.Modules.CloneModelView)|4.252.2
+ |[Xpand.XAF.Modules.SuppressConfirmation](https://github.com/eXpandFramework/Reactive.XAF/tree/master/src/Modules/Xpand.XAF.Modules.SuppressConfirmation)|4.252.2
  |[Fasterflect.Xpand](https://github.com/eXpandFramework/Fasterflect)|2.0.7
  |System.Reactive|6.0.1
- |Lib.Harmony|2.4.2
+ |Lib.Harmony.Thin|2.4.2
  |Telegram.Bot|22.7.6
  |Humanizer|3.0.1
  |Microsoft.Extensions.Options|10.0.1
@@ -123,8 +124,8 @@ The module follows the Nuget [Version Basics](https://docs.microsoft.com/en-us/n
  |Microsoft.Extensions.FileProviders.Abstractions|10.0.1
  |Microsoft.Extensions.Diagnostics.Abstractions|10.0.1
  |Microsoft.Extensions.Logging.Abstractions|10.0.1
- |[Xpand.VersionConverter](https://github.com/eXpandFramework/Reactive.XAF/tree/master/tools/Xpand.VersionConverter)|4.252.1
- |[Xpand.VersionConverter](https://github.com/eXpandFramework/Reactive.XAF/tree/master/tools/Xpand.VersionConverter)|4.252.1
+ |[Xpand.VersionConverter](https://github.com/eXpandFramework/Reactive.XAF/tree/master/tools/Xpand.VersionConverter)|4.252.2
+ |[Xpand.VersionConverter](https://github.com/eXpandFramework/Reactive.XAF/tree/master/tools/Xpand.VersionConverter)|4.252.2
 
 ## Issues-Debugging-Troubleshooting
 
