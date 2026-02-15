@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.Actions;
@@ -7,9 +8,25 @@ using Xpand.XAF.Modules.ImportData.Services;
 using Xpand.XAF.Modules.Reactive;
 
 namespace Xpand.XAF.Modules.ImportData{
+	/// <summary>
+	/// ListView controller that provides the "Import Data" action for importing spreadsheet data into business objects.
+	/// </summary>
+	/// <remarks>
+	/// This controller automatically populates an "Import Data" action on ListViews that match configured import rules
+	/// in the application model. When the action is executed, it opens a modal dialog where users can:
+	/// <list type="bullet">
+	/// <item><description>Select a spreadsheet file (XLSX, XLS, or CSV)</description></item>
+	/// <item><description>Configure import settings (headers, data start row, import mode, batch size, record limit)</description></item>
+	/// <item><description>Review and adjust field mappings between columns and business object properties</description></item>
+	/// <item><description>Execute the import and view results (success count, errors, elapsed time)</description></item>
+	/// </list>
+	/// </remarks>
 	public class ImportDataController : ViewController<ListView>{
 		readonly SingleChoiceAction _importAction;
 
+		/// <summary>
+		/// Initializes the ImportDataController and sets up the "Import Data" action.
+		/// </summary>
 		public ImportDataController(){
 			_importAction = new SingleChoiceAction(this, "ImportData", "RecordEdit"){
 				SelectionDependencyType = SelectionDependencyType.Independent,
@@ -24,6 +41,9 @@ namespace Xpand.XAF.Modules.ImportData{
 			PopulateItems();
 		}
 
+		/// <summary>
+		/// Populates the "Import Data" action with choices from configured import rules.
+		/// </summary>
 		void PopulateItems(){
 			_importAction.Items.Clear();
 			if (View?.Model == null) return;
@@ -34,6 +54,13 @@ namespace Xpand.XAF.Modules.ImportData{
 			}
 		}
 
+		/// <summary>
+		/// Executes when the user selects an import rule from the "Import Data" action dropdown.
+		/// </summary>
+		/// <remarks>
+		/// <para>Orchestrates the import wizard: opens dialog, handles file loading, runs import,
+		/// shows result via toast notification, and closes the dialog automatically.</para>
+		/// </remarks>
 		void ImportAction_Execute(object sender, SingleChoiceActionExecuteEventArgs e){
 			var rule = (IModelImportDataRule)e.SelectedChoiceActionItem.Data;
 			var typeInfo = rule.ListView.ModelClass.TypeInfo;
@@ -52,6 +79,7 @@ namespace Xpand.XAF.Modules.ImportData{
 				parameter.FileContent = content;
 				SpreadsheetParserService.LoadFileIntoParameter(parameter);
 				FieldMappingService.AutoMap(parameter, typeInfo);
+				parameter.RefreshAvailableKeyProperties();
 			};
 			parameter.File = file;
 
@@ -73,19 +101,23 @@ namespace Xpand.XAF.Modules.ImportData{
 					parameter.FileContent = parameter.File.Content;
 					SpreadsheetParserService.LoadFileIntoParameter(parameter);
 					FieldMappingService.AutoMap(parameter, typeInfo);
+					parameter.RefreshAvailableKeyProperties();
 				}
 
-				var result = ImportExecutionService.ExecuteSync(Application, parameter, typeInfo);
-
-				// Disable Import button to prevent double-import.
-				dialogController.AcceptAction.Enabled.SetItemValue("ImportComplete", false);
+				// Execute the import
+				var importResult = ImportExecutionService.ExecuteSync(Application, parameter, typeInfo);
 
 				// Refresh the ListView behind the dialog so it shows imported data.
 				View?.ObjectSpace?.Refresh();
 
-				// Show result. UserFriendlyException displays a message box.
-				// The dialog stays open; user clicks Cancel/X to close.
-				throw new UserFriendlyException(result.Summary);
+				// Show result as a toast notification (cross-platform, persists after dialog closes).
+				Application.ShowViewStrategy.ShowMessage(new MessageOptions{
+					Message = importResult.Summary,
+					Type = InformationType.Success,
+					Duration = 10000
+				});
+
+				// Handler returns normally → DialogController closes the dialog automatically.
 			};
 			e.ShowViewParameters.Controllers.Add(dialogController);
 		}

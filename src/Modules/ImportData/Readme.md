@@ -43,21 +43,40 @@ Each rule defines:
 
 For `Update` and `Upsert` modes, set the `KeyProperty` field in the wizard to the business object property used for matching (e.g., `Code`, `Email`).
 
+### Import Settings
+
+The `ImportParameter` dialog provides the following configurable settings:
+
+| Setting | Type | Description | Default |
+|---------|------|-------------|---------|
+| `File` | IFileData | The spreadsheet file to import (.xlsx, .xls, .csv) | Required |
+| `SheetName` | string | Worksheet name (for multi-sheet files) | First sheet |
+| `HasHeaders` | bool | Whether first data row contains column headers | true |
+| `HeaderRowIndex` | int | Zero-based row index of header row (when `HasHeaders=true`) | 0 |
+| `DataStartRowIndex` | int | Zero-based row index where data rows begin | 1 |
+| `ImportMode` | `Insert` / `Update` / `Upsert` | Object resolution strategy | `Insert` |
+| `KeyProperty` | string (dropdown) | Property for matching (in `Update`/`Upsert` modes), populated from active field mappings | - |
+| `BatchSize` | int | Rows per database commit (for performance) | 100 |
+| `MaxRecordsToImport` | int | Maximum rows to import from file (0 = no limit) | 0 |
+
+**Important:** `MaxRecordsToImport` limits the number of data rows imported. Set to `100` to import only the first 100 data rows, for example. A value of `0` imports all rows.
+
 ### Import Wizard Flow
 
 1. User opens a ListView (e.g., `Customer_ListView`)
 2. Clicks `Import Data` action (items come from model rules matching this ListView)
 3. Modal dialog opens with an `ImportParameter` DetailView
-4. User provides file content (`FileContent` byte array property) and adjusts settings:
+4. User selects a spreadsheet file and adjusts settings:
    - `SheetName` -- which worksheet to read (for multi-sheet XLSX/XLS files)
    - `HasHeaders` / `HeaderRowIndex` / `DataStartRowIndex` -- header detection
-   - `ImportMode` / `KeyProperty` -- object resolution strategy
+   - `ImportMode` / `KeyProperty` -- object resolution strategy (`KeyProperty` dropdown is populated from active field mappings)
    - `BatchSize` -- commit frequency
+   - `MaxRecordsToImport` -- maximum number of rows to import (0 = no limit, imports all rows)
 5. The `FieldMaps` collection shows one entry per source column with auto-mapped target properties
 6. User reviews/adjusts mappings, sets `DefaultValue` or `Skip` per column
-7. User clicks `OK` to execute the import
-8. A result dialog shows the summary and any per-row errors
-9. The source ListView refreshes automatically
+7. User clicks `Import` to execute
+8. Import runs in batches, the dialog closes automatically, and the source ListView refreshes
+9. A toast notification shows the result summary (inserted/updated/error counts, elapsed time)
 
 ### Automatic Field Mapping
 
@@ -103,14 +122,15 @@ The module follows the standard `ReactiveModuleBase` pattern. The internal pipel
 
 ```
 ImportDataModule.Setup(manager)
-  -> ImportDataService.Connect(manager)
-    -> RegisterAction("ImportData", TargetViewType=ListView, SelectionDependency=Independent)
-    -> AddItems() from IModelImportDataRules matching the current ListView
-    -> MergeIgnored:
-      -> ShowImportWizard(): WhenExecuted -> create ImportParameter -> modal DetailView
-        -> AcceptAction.WhenExecuted -> ImportExecutionService.Execute()
-          -> ShowResult(): display ImportResult in a second modal
+  -> ImportDataController (ViewController<ListView>)
+    -> PopulateItems() from IModelImportDataRules matching the current ListView
+    -> ImportAction_Execute:
+      -> Create ImportParameter -> modal DetailView with DialogController
+        -> FileLoaded callback -> parse + auto-map + populate KeyProperty dropdown
+        -> AcceptAction.Execute -> ImportExecutionService.ExecuteSync()
           -> Refresh source ListView
+          -> ShowMessage() toast notification with result summary
+          -> Dialog closes automatically
 ```
 
 ### NonPersistent Business Objects
