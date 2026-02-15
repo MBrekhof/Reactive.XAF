@@ -43,7 +43,17 @@ namespace Xpand.XAF.Modules.ImportData{
 			parameter.ImportMode = rule.DefaultImportMode;
 			parameter.BatchSize = rule.BatchSize > 0 ? rule.BatchSize : 100;
 			parameter.TargetTypeInfo = typeInfo;
-			parameter.File = new InMemoryFileData();
+
+			// Wire up file-loaded callback: when the user picks a file via [FileAttachment],
+			// parse it immediately so field mappings show as a preview.
+			var file = new InMemoryFileData();
+			file.FileLoaded = (fileName, content) => {
+				parameter.FileName = fileName;
+				parameter.FileContent = content;
+				SpreadsheetParserService.LoadFileIntoParameter(parameter);
+				FieldMappingService.AutoMap(parameter, typeInfo);
+			};
+			parameter.File = file;
 
 			var detailView = Application.CreateDetailView(objectSpace, parameter);
 			e.ShowViewParameters.CreatedView = detailView;
@@ -52,27 +62,32 @@ namespace Xpand.XAF.Modules.ImportData{
 
 			var dialogController = Application.CreateController<DialogController>();
 			dialogController.SaveOnAccept = false;
-			dialogController.AcceptAction.Execute += (s, acceptArgs) => AcceptAction_Execute(acceptArgs, parameter, typeInfo);
+			dialogController.AcceptAction.Caption = "Import";
+			dialogController.AcceptAction.Execute += (s, acceptArgs) => {
+				if (parameter.File == null || parameter.File.Size == 0)
+					throw new UserFriendlyException("No file selected. Use the file picker to select a file.");
+
+				// Fallback: if FileLoaded callback didn't fire, parse now.
+				if (parameter.FileContent == null || parameter.FileContent.Length == 0){
+					parameter.FileName = parameter.File.FileName;
+					parameter.FileContent = parameter.File.Content;
+					SpreadsheetParserService.LoadFileIntoParameter(parameter);
+					FieldMappingService.AutoMap(parameter, typeInfo);
+				}
+
+				var result = ImportExecutionService.ExecuteSync(Application, parameter, typeInfo);
+
+				// Disable Import button to prevent double-import.
+				dialogController.AcceptAction.Enabled.SetItemValue("ImportComplete", false);
+
+				// Refresh the ListView behind the dialog so it shows imported data.
+				View?.ObjectSpace?.Refresh();
+
+				// Show result. UserFriendlyException displays a message box.
+				// The dialog stays open; user clicks Cancel/X to close.
+				throw new UserFriendlyException(result.Summary);
+			};
 			e.ShowViewParameters.Controllers.Add(dialogController);
-		}
-
-		void AcceptAction_Execute(SimpleActionExecuteEventArgs e, ImportParameter parameter, DevExpress.ExpressApp.DC.ITypeInfo typeInfo){
-			if (parameter.File == null || parameter.File.Size == 0)
-				throw new UserFriendlyException("No file selected. Use the file picker to select a file.");
-
-			parameter.FileName = parameter.File.FileName;
-			parameter.FileContent = parameter.File.Content;
-			SpreadsheetParserService.LoadFileIntoParameter(parameter);
-			FieldMappingService.AutoMap(parameter, typeInfo);
-
-			var result = ImportExecutionService.ExecuteSync(Application, parameter, typeInfo);
-
-			var resultOs = Application.CreateObjectSpace(typeof(ImportResult));
-			var resultView = Application.CreateDetailView(resultOs, result);
-			e.ShowViewParameters.CreatedView = resultView;
-			e.ShowViewParameters.TargetWindow = TargetWindow.NewModalWindow;
-
-			View?.ObjectSpace?.Refresh();
 		}
 	}
 }
