@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reflection;
 using System.Text.Json;
+using System.Threading.Tasks;
 using DevExpress.ExpressApp;
 using DevExpress.ExpressApp.DC;
 using Fasterflect;
@@ -25,14 +27,16 @@ namespace Xpand.XAF.Modules.ImportData.Services{
 		static IObservable<ImportParameter> PickFileWin(ImportParameter parameter, ITypeInfo typeInfo)
 			=> Observable.Defer(() => {
 				var dialogType = AppDomain.CurrentDomain.GetAssemblyType("System.Windows.Forms.OpenFileDialog");
-				if (dialogType == null) return Observable.Empty<ImportParameter>();
+				if (dialogType == null)
+					return Observable.Throw<ImportParameter>(
+						new InvalidOperationException("System.Windows.Forms is not available. Ensure the application references WinForms."));
 
 				using var dialog = (IDisposable)Activator.CreateInstance(dialogType);
 				dialog.SetPropertyValue("Filter", WinFilter);
 				dialog.SetPropertyValue("Title", "Select Import File");
 
-				var result = (int)dialog.CallMethod("ShowDialog");
-				if (result != 1) return Observable.Empty<ImportParameter>();
+				var dialogResult = dialog.CallMethod("ShowDialog");
+				if (Convert.ToInt32(dialogResult) != 1) return Observable.Empty<ImportParameter>();
 
 				var filePath = (string)dialog.GetPropertyValue("FileName");
 				parameter.FileName = Path.GetFileName(filePath);
@@ -47,11 +51,18 @@ namespace Xpand.XAF.Modules.ImportData.Services{
 			=> Observable.FromAsync(async () => {
 				var jsRuntimeType = AppDomain.CurrentDomain.GetAssemblyType(
 					"Microsoft.JSInterop.IJSRuntime");
-				if (jsRuntimeType == null) return null;
+				if (jsRuntimeType == null)
+					throw new InvalidOperationException("Microsoft.JSInterop.IJSRuntime is not available.");
 
-				var serviceProvider = application.GetPropertyValue("ServiceProvider");
-				var jsRuntime = serviceProvider?.CallMethod("GetService", jsRuntimeType);
-				if (jsRuntime == null) return null;
+				var serviceProviderProp = application.GetType().GetProperty("ServiceProvider",
+					BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+				var serviceProvider = serviceProviderProp?.GetValue(application) as IServiceProvider;
+				if (serviceProvider == null)
+					throw new InvalidOperationException("ServiceProvider is not available on the application.");
+
+				var jsRuntime = serviceProvider.GetService(jsRuntimeType);
+				if (jsRuntime == null)
+					throw new InvalidOperationException("IJSRuntime service is not registered.");
 
 				var js = "(function(){" +
 					"return new Promise((resolve)=>{" +
@@ -84,13 +95,14 @@ namespace Xpand.XAF.Modules.ImportData.Services{
 						&& m.IsGenericMethodDefinition
 						&& m.GetParameters().Length == 3);
 				var generic = invokeMethod?.MakeGenericMethod(typeof(string));
-				if (generic == null) return null;
+				if (generic == null)
+					throw new InvalidOperationException("Could not find JSRuntimeExtensions.InvokeAsync method.");
 
 				var valueTask = generic.Invoke(null, new object[]{
 					jsRuntime, "eval", new object[]{ js }
 				});
-				var task = (System.Threading.Tasks.Task<string>)valueTask
-					.CallMethod("AsTask");
+				var asTaskMethod = valueTask.GetType().GetMethod("AsTask");
+				var task = (Task<string>)asTaskMethod.Invoke(valueTask, null);
 				var jsonResult = await task;
 
 				if (string.IsNullOrEmpty(jsonResult)) return null;

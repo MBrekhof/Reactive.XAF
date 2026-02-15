@@ -64,7 +64,6 @@ namespace Xpand.XAF.Modules.ImportData{
 				action.TargetViewType = ViewType.DetailView;
 				action.ImageName = "Action_Open";
 				action.Caption = "Browse...";
-				action.Category = "Edit";
 			}).MergeIgnored(action => action.WhenExecuted(e => {
 				var parameter = (ImportParameter)e.Action.View().CurrentObject;
 				var application = e.Action.Application;

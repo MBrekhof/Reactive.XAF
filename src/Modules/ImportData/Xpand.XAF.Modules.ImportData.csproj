@@ -49,7 +49,6 @@
     <PackageReference Include="DevExpress.Document.Processor" />
     <PackageReference Include="Fasterflect.Xpand" />
     <PackageReference Include="System.Reactive" />
-    <PackageReference Include="Lib.Harmony" />
     <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.CodeAnalysis" />
