@@ -272,5 +272,47 @@ namespace Xpand.XAF.Modules.ImportData.Tests{
 			obj.CreatedDate.ShouldBe(new DateTime(2025, 6, 15));
 			obj.ExternalId.ShouldBe(Guid.Parse("a1b2c3d4-e5f6-7890-abcd-ef1234567890"));
 		}
+
+		[Test]
+		public void RefreshAvailableKeyProperties_Populates_From_Active_FieldMaps(){
+			using var application = CreateApplication();
+			var file = TestDataFactory.SimpleImportFile(("K1", "Key Test", 1, 1.00, true));
+			var param = CreateParameter(file, ImportMode.Upsert, null, application);
+
+			param.RefreshAvailableKeyProperties();
+
+			param.AvailableKeyProperties.Count.ShouldBeGreaterThan(0);
+			param.AvailableKeyProperties.ShouldContain("Code");
+			param.AvailableKeyProperties.ShouldContain("Name");
+		}
+
+		[Test]
+		public void RefreshAvailableKeyProperties_Excludes_Skipped_Maps(){
+			using var application = CreateApplication();
+			var file = TestDataFactory.SimpleImportFile(("K1", "Key Test", 1, 1.00, true));
+			var param = CreateParameter(file, ImportMode.Upsert, null, application);
+
+			var codeMap = param.FieldMaps.First(m => m.TargetProperty == "Code");
+			codeMap.Skip = true;
+
+			param.RefreshAvailableKeyProperties();
+
+			param.AvailableKeyProperties.ShouldNotContain("Code");
+			param.AvailableKeyProperties.ShouldContain("Name");
+		}
+
+		[Test]
+		public void RefreshAvailableKeyProperties_Excludes_Unmapped_Fields(){
+			using var application = CreateApplication();
+			var file = TestDataFactory.SimpleImportFile(("K1", "Key Test", 1, 1.00, true));
+			var param = CreateParameter(file, ImportMode.Upsert, null, application);
+
+			var codeMap = param.FieldMaps.First(m => m.TargetProperty == "Code");
+			codeMap.TargetProperty = null;
+
+			param.RefreshAvailableKeyProperties();
+
+			param.AvailableKeyProperties.ShouldNotContain("Code");
+		}
 	}
 }
