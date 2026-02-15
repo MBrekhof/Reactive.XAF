@@ -16,6 +16,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <PreserveCompilationContext>true</PreserveCompilationContext>
+    <DefaultItemExcludes>$(DefaultItemExcludes);TestAppImport\**</DefaultItemExcludes>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\TestsLib.Blazor\Xpand.TestsLib.Blazor.csproj" />
@@ -47,9 +48,7 @@
     <PackageReference Include="DevExpress.Document.Processor" />
     <PackageReference Include="DevExpress.ExpressApp" />
     <PackageReference Include="DevExpress.ExpressApp.Win" />
-    <PackageReference Include="Fasterflect.Xpand" />
-    <PackageReference Include="Lib.Harmony" />
-    <PackageReference Include="Microsoft.CodeAnalysis" />
+    <PackageReference Include="DevExpress.Persistent.Base" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Microsoft.Reactive.Testing" />
     <PackageReference Include="Moq" />

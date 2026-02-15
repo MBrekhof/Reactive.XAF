@@ -1,12 +1,15 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using DevExpress.ExpressApp.DC;
+using DevExpress.Persistent.Base;
 using Xpand.Extensions.XAF.NonPersistentObjects;
 
 namespace Xpand.XAF.Modules.ImportData.BusinessObjects{
 	[DomainComponent]
 	[DefaultProperty(nameof(FileName))]
+	[FileAttachment(nameof(File))]
 	public class ImportParameter : NonPersistentBaseObject{
+		InMemoryFileData _file;
 		string _fileName;
 		byte[] _fileContent;
 		string _sheetName;
@@ -19,14 +22,19 @@ namespace Xpand.XAF.Modules.ImportData.BusinessObjects{
 		readonly BindingList<ImportFieldMap> _fieldMaps = new();
 		readonly BindingList<string> _availableSheets = new();
 
-		[Editable(false)]
+		[FileTypeFilter("Spreadsheet Files", 1, "*.xlsx", "*.xls", "*.csv")]
+		public InMemoryFileData File{
+			get => _file;
+			set => SetPropertyValue(nameof(File), ref _file, value);
+		}
+
+		[Browsable(false)]
 		public string FileName{
 			get => _fileName;
 			set => SetPropertyValue(nameof(FileName), ref _fileName, value);
 		}
 
 		[Browsable(false)]
-		[Editable(true)]
 		public byte[] FileContent{
 			get => _fileContent;
 			set => SetPropertyValue(nameof(FileContent), ref _fileContent, value);

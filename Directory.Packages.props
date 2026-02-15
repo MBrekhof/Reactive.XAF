@@ -32,6 +32,7 @@
     <PackageVersion Include="DevExpress.ExpressApp.Dashboards.Blazor" Version="25.2.3" />
     <PackageVersion Include="DevExpress.ExpressApp.Dashboards.Win" Version="25.2.3" />
     <PackageVersion Include="DevExpress.ExpressApp.FileAttachment.Blazor" Version="25.2.3" />
+    <PackageVersion Include="DevExpress.ExpressApp.FileAttachment.Win" Version="25.2.3" />
     <PackageVersion Include="DevExpress.ExpressApp.Notifications" Version="25.2.3" />
     <PackageVersion Include="DevExpress.ExpressApp.Office" Version="25.2.3" />
     <PackageVersion Include="DevExpress.ExpressApp.Office.Blazor" Version="25.2.3" />

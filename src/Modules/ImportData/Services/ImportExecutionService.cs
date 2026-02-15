@@ -11,56 +11,59 @@ using Xpand.XAF.Modules.ImportData.BusinessObjects;
 namespace Xpand.XAF.Modules.ImportData.Services{
 	internal static class ImportExecutionService{
 
-		internal static IObservable<ImportResult> Execute(
-			XafApplication application, ImportParameter parameter, ITypeInfo typeInfo)
-			=> Observable.Defer(() => {
-				var sw = Stopwatch.StartNew();
-				var result = new ImportResult();
-				var rows = SpreadsheetParserService.ParseDataRows(parameter);
-				result.TotalRows = rows.Count;
+		internal static ImportResult ExecuteSync(
+			XafApplication application, ImportParameter parameter, ITypeInfo typeInfo){
+			var sw = Stopwatch.StartNew();
+			var result = new ImportResult();
+			var rows = SpreadsheetParserService.ParseDataRows(parameter);
+			result.TotalRows = rows.Count;
 
-				var activeMaps = parameter.FieldMaps
-					.Where(m => !m.Skip && !string.IsNullOrEmpty(m.TargetProperty))
-					.ToList();
+			var activeMaps = parameter.FieldMaps
+				.Where(m => !m.Skip && !string.IsNullOrEmpty(m.TargetProperty))
+				.ToList();
 
-				var batchSize = parameter.BatchSize > 0 ? parameter.BatchSize : 100;
-				var objectSpace = application.CreateObjectSpace(typeInfo.Type);
+			var batchSize = parameter.BatchSize > 0 ? parameter.BatchSize : 100;
+			var objectSpace = application.CreateObjectSpace(typeInfo.Type);
 
-				try{
-					for (var i = 0; i < rows.Count; i++){
-						try{
-							var row = rows[i];
-							var obj = ResolveObject(objectSpace, typeInfo, parameter, row, activeMaps, result, i);
-							if (obj == null) continue;
+			try{
+				for (var i = 0; i < rows.Count; i++){
+					try{
+						var row = rows[i];
+						var obj = ResolveObject(objectSpace, typeInfo, parameter, row, activeMaps, result, i);
+						if (obj == null) continue;
 
-							SetPropertyValues(obj, row, activeMaps, typeInfo, result, i);
+						SetPropertyValues(obj, row, activeMaps, typeInfo, result, i);
 
-							if ((i + 1) % batchSize == 0){
-								objectSpace.CommitChanges();
-							}
-						}
-						catch (Exception ex){
-							result.Errors.Add(new ImportError{
-								RowIndex = i + parameter.DataStartRowIndex,
-								Message = ex.Message
-							});
+						if ((i + 1) % batchSize == 0){
+							objectSpace.CommitChanges();
 						}
 					}
-
-					objectSpace.CommitChanges();
-				}
-				finally{
-					sw.Stop();
-					result.ElapsedSeconds = Math.Round(sw.Elapsed.TotalSeconds, 2);
-					result.SuccessCount = result.InsertedCount + result.UpdatedCount;
-					result.ErrorCount = result.Errors.Count;
-					result.Summary = $"Imported {result.SuccessCount} of {result.TotalRows} rows " +
-					                 $"({result.InsertedCount} inserted, {result.UpdatedCount} updated, " +
-					                 $"{result.ErrorCount} errors) in {result.ElapsedSeconds}s";
+					catch (Exception ex){
+						result.Errors.Add(new ImportError{
+							RowIndex = i + parameter.DataStartRowIndex,
+							Message = ex.Message
+						});
+					}
 				}
 
-				return Observable.Return(result);
-			});
+				objectSpace.CommitChanges();
+			}
+			finally{
+				sw.Stop();
+				result.ElapsedSeconds = Math.Round(sw.Elapsed.TotalSeconds, 2);
+				result.SuccessCount = result.InsertedCount + result.UpdatedCount;
+				result.ErrorCount = result.Errors.Count;
+				result.Summary = $"Imported {result.SuccessCount} of {result.TotalRows} rows " +
+				                 $"({result.InsertedCount} inserted, {result.UpdatedCount} updated, " +
+				                 $"{result.ErrorCount} errors) in {result.ElapsedSeconds}s";
+			}
+
+			return result;
+		}
+
+		internal static IObservable<ImportResult> Execute(
+			XafApplication application, ImportParameter parameter, ITypeInfo typeInfo)
+			=> Observable.Defer(() => Observable.Return(ExecuteSync(application, parameter, typeInfo)));
 
 		static object ResolveObject(IObjectSpace objectSpace, ITypeInfo typeInfo,
 			ImportParameter parameter, Dictionary<string, object> row,

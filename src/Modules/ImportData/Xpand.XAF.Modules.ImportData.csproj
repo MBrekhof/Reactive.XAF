@@ -47,13 +47,7 @@
   <ItemGroup>
     <PackageReference Include="DevExpress.ExpressApp" />
     <PackageReference Include="DevExpress.Document.Processor" />
-    <PackageReference Include="Fasterflect.Xpand" />
+    <PackageReference Include="DevExpress.Persistent.Base" />
     <PackageReference Include="System.Reactive" />
-    <PackageReference Include="Microsoft.Extensions.Options" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-    <PackageReference Include="Microsoft.CodeAnalysis" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" />
   </ItemGroup>
 </Project>
