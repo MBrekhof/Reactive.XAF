@@ -19,6 +19,7 @@ namespace Xpand.XAF.Modules.ImportData.BusinessObjects{
 		readonly BindingList<ImportFieldMap> _fieldMaps = new();
 		readonly BindingList<string> _availableSheets = new();
 
+		[Editable(false)]
 		public string FileName{
 			get => _fileName;
 			set => SetPropertyValue(nameof(FileName), ref _fileName, value);
@@ -68,6 +69,9 @@ namespace Xpand.XAF.Modules.ImportData.BusinessObjects{
 			get => _batchSize;
 			set => SetPropertyValue(nameof(BatchSize), ref _batchSize, value);
 		}
+
+		[Browsable(false)]
+		internal ITypeInfo TargetTypeInfo{ get; set; }
 
 		public BindingList<ImportFieldMap> FieldMaps => _fieldMaps;
 

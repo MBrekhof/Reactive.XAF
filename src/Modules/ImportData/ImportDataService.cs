@@ -30,11 +30,15 @@ namespace Xpand.XAF.Modules.ImportData{
 		public static SingleChoiceAction ImportData(this (ImportDataModule, Frame frame) tuple)
 			=> tuple.frame.Action(nameof(ImportData)).As<SingleChoiceAction>();
 
+		public static SimpleAction BrowseFile(this (ImportDataModule, Frame frame) tuple)
+			=> tuple.frame.Action(nameof(BrowseFile)).As<SimpleAction>();
+
 		internal static IObservable<Unit> Connect(this ApplicationModulesManager manager)
 			=> manager.RegisterAction()
 				.AddItems(action => action.AddItems().ToUnit(), Scheduler)
 				.MergeIgnored(action => action.ShowImportWizard())
-				.ToUnit();
+				.ToUnit()
+				.Merge(manager.RegisterBrowseAction().ToUnit());
 
 		static IObservable<SingleChoiceAction> RegisterAction(this ApplicationModulesManager manager)
 			=> manager.RegisterViewSingleChoiceAction(nameof(ImportData), action => action.ConfigureAction());
@@ -43,7 +47,7 @@ namespace Xpand.XAF.Modules.ImportData{
 			action.SelectionDependencyType = SelectionDependencyType.Independent;
 			action.ItemType = SingleChoiceActionItemType.ItemIsOperation;
 			action.TargetViewType = ViewType.ListView;
-			action.ImageName = "Action_Import";
+			action.ImageName = "Action_ImportData";
 		}
 
 		static IObservable<ChoiceActionItem> AddItems(this SingleChoiceAction action)
@@ -53,6 +57,23 @@ namespace Xpand.XAF.Modules.ImportData{
 				.ToNowObservable()
 				.Do(item => action.Items.Add(item))
 				.TraceImportData(item => item.Caption);
+
+		static IObservable<SimpleAction> RegisterBrowseAction(this ApplicationModulesManager manager)
+			=> manager.RegisterViewSimpleAction(nameof(BrowseFile), action => {
+				action.TargetObjectType = typeof(ImportParameter);
+				action.TargetViewType = ViewType.DetailView;
+				action.ImageName = "Action_Open";
+				action.Caption = "Browse...";
+				action.Category = "Edit";
+			}).MergeIgnored(action => action.WhenExecuted(e => {
+				var parameter = (ImportParameter)e.Action.View().CurrentObject;
+				var application = e.Action.Application;
+				var typeInfo = parameter.TargetTypeInfo;
+				return FilePickerService.PickFile(application, parameter, typeInfo)
+					.ObserveOn(Scheduler)
+					.Do(_ => e.Action.View()?.Refresh())
+					.ToUnit();
+			}).ToUnit());
 
 		static IObservable<Unit> ShowImportWizard(this SingleChoiceAction action)
 			=> action.WhenExecuted(e => {
@@ -66,6 +87,7 @@ namespace Xpand.XAF.Modules.ImportData{
 				var parameter = objectSpace.CreateObject<ImportParameter>();
 				parameter.ImportMode = rule.DefaultImportMode;
 				parameter.BatchSize = rule.BatchSize > 0 ? rule.BatchSize : 100;
+				parameter.TargetTypeInfo = typeInfo;
 
 				var detailView = application.CreateDetailView(objectSpace, parameter);
 				e.ShowViewParameters.CreatedView = detailView;
@@ -76,14 +98,16 @@ namespace Xpand.XAF.Modules.ImportData{
 				dialogController.SaveOnAccept = false;
 				e.ShowViewParameters.Controllers.Add(dialogController);
 
-				return dialogController.AcceptAction.WhenExecuted(_ =>
-					ImportExecutionService.Execute(application, parameter, typeInfo)
+				return dialogController.AcceptAction.WhenExecuted(_ => {
+					if (parameter.FileContent == null || parameter.FileContent.Length == 0)
+						throw new UserFriendlyException("No file selected. Use the Browse button to select a file.");
+					return ImportExecutionService.Execute(application, parameter, typeInfo)
 						.ObserveOn(Scheduler)
 						.SelectMany(result => ShowResult(application, result, e.ShowViewParameters))
 						.Do(_ => {
 							listViewFrame.View?.ObjectSpace?.Refresh();
-						})
-				).ToUnit();
+						});
+				}).ToUnit();
 			}).ToUnit();
 
 		static IObservable<Unit> ShowResult(XafApplication application, ImportResult result, ShowViewParameters parentParameters){
