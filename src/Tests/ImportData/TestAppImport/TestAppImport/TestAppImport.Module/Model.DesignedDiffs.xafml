@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Application Title="TestAppImport">
+  <BOModel>
+    <Class Name="DevExpress.Persistent.BaseImpl.EF.PermissionPolicy.PermissionPolicyUser" Caption="Base User" />
+  </BOModel>
+  <Options>
+    <LayoutManagerOptions RequiredFieldMark="*" />
+  </Options>
+  <ReactiveModules>
+    <ImportData>
+      <Rules>
+        <ImportDataRule Id="custImport" Caption="Just a batch" ListView="Customer_ListView" IsNewNode="True" />
+      </Rules>
+    </ImportData>
+  </ReactiveModules>
+  <SchemaModules>
+    <SchemaModule Name="CloneObjectModule" Version="25.2.3.0" IsNewNode="True" />
+    <SchemaModule Name="SystemModule" Version="25.2.3.0" IsNewNode="True" />
+  </SchemaModules>
+  <Views>
+    <ListView Id="ApplicationUser_ListView" Caption="Users" />
+  </Views>
+</Application>

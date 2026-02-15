@@ -1,0 +1,10 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="EasyTest" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Project Path="TestAppImport/TestAppImport.Blazor.Server/TestAppImport.Blazor.Server.csproj" />
+  <Project Path="TestAppImport/TestAppImport.Module/TestAppImport.Module.csproj" />
+  <Project Path="TestAppImport/TestAppImport.Win/TestAppImport.Win.csproj" />
+</Solution>
